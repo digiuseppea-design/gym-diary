@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try{if(localStorage.getItem('gymDiaryTheme')==='alternative')document.documentElement.dataset.theme='alternative'}catch(error){}</script>
+  <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f5f0e7">
   <meta name="description" content="Il tuo diario di allenamento, semplice e sempre con te.">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -87,7 +88,7 @@
       <section class="profile-card max-profile-card"><div><span class="eyebrow">Forza</span><h2>I tuoi massimali</h2></div><div class="profile-max-list" id="profile-max-list"></div></section>
       <section class="profile-card appearance-profile-card"><div><span class="eyebrow">Aspetto</span><h2>Scegli il tuo stile</h2><p>Cambia soltanto l’aspetto del diario. Dati e funzioni restano identici.</p></div><div class="theme-options" role="group" aria-label="Tema dell’app"><button type="button" data-theme-choice="original" aria-pressed="true"><span class="theme-preview theme-preview-original" aria-hidden="true"><i></i><i></i><i></i></span><strong>Originale</strong><small>Caldo e minimale</small></button><button type="button" data-theme-choice="alternative" aria-pressed="false"><span class="theme-preview theme-preview-alternative" aria-hidden="true"><i></i><i></i><i></i></span><strong>Steel &amp; Chalk</strong><small>Scuro e deciso</small></button></div></section>
       <section class="profile-card backup-profile-card"><div class="backup-card-heading"><div><span class="eyebrow">I tuoi dati</span><h2>Una copia fuori dall’app</h2><p>Salva un file sul telefono. Se cancelli i dati del browser, potrai ricostruire il diario da qui.</p></div><span class="backup-status-mark" id="backup-status-mark" aria-hidden="true">↓</span></div><div class="backup-status" id="backup-status" role="status"></div><div class="backup-actions"><button class="primary-button" id="download-backup" type="button">Salva una copia</button><button class="secondary-button" id="restore-backup" type="button">Ripristina una copia</button></div><p class="backup-warning">Il ripristino sostituisce i dati presenti nell’app con quelli contenuti nel file scelto.</p><input id="backup-file-input" type="file" accept="application/json,.json" hidden></section>
-      <section class="demo-data-card" id="demo-data-card"><div><strong>Modalità di prova</strong><span>Carica 28 sessioni realistiche da gennaio a luglio per provare storico, grafici e record.</span></div><button class="secondary-button" id="load-demo-data" type="button">Carica demo estesa</button></section>
+      <p class="app-version" id="app-version">Versione app: controllo in corso...</p>
     </section>
   </main>
 

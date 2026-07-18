@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workflow Git + GitHub Pages</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --paper: #fffdf8;
+      --ink: #252525;
+      --muted: #66645d;
+      --line: #d8d0c3;
+      --accent: #2f6f73;
+      --accent-soft: #dcebea;
+      --warn: #8a5b15;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+    }
+
+    .intro {
+      max-width: 760px;
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .flow,
+    .notes {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 22px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 14px;
+      position: relative;
+      padding-bottom: 24px;
+    }
+
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 48px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .number {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .step h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    code {
+      background: var(--accent-soft);
+      color: #174144;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 0.95em;
+    }
+
+    .notes h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    .note {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .note:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .note h3 {
+      margin: 0 0 5px;
+      font-size: 17px;
+    }
+
+    .note p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .mini-map {
+      margin-top: 22px;
+      padding: 16px;
+      background: #f3faf9;
+      border: 1px solid #c9dfdc;
+      border-radius: 8px;
+    }
+
+    .mini-map strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .mini-map pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+      color: #214446;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    @media (max-width: 820px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Da cartella locale ad app online</h1>
+    <p class="intro">Questo schema mostra il percorso di una app HTML statica: prima viene salvata con Git, poi caricata su GitHub, poi pubblicata online con GitHub Pages usando un workflow.</p>
+
+    <section class="layout" aria-label="Workflow Git e GitHub Pages">
+      <div class="flow">
+        <article class="step">
+          <div class="number">1</div>
+          <div>
+            <h2>Cartella sul computer</h2>
+            <p>Il progetto vive nella cartella <code>Gym Diary/</code>. Qui modifichi HTML, CSS e JavaScript.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="number">2</div>
+          <div>
+            <h2>Commit con Git</h2>
+            <p>Con <code>git add .</code> e <code>git commit</code> salvi una fotografia della versione attuale.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="number">3</div>
+          <div>
+            <h2>Push su GitHub</h2>
+            <p>Con <code>git push</code> mandi quella versione nella repo online su GitHub.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="number">4</div>
+          <div>
+            <h2>GitHub Actions legge il workflow</h2>
+            <p>GitHub trova <code>.github/workflows/pages.yml</code> e segue le istruzioni scritte li' dentro.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="number">5</div>
+          <div>
+            <h2>Preparazione della cartella _site</h2>
+            <p>Il workflow crea <code>_site</code> e ci copia dentro i file da pubblicare: <code>index.html</code>, <code>app/</code>, <code>mockup/</code>, <code>.nojekyll</code>.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="number">6</div>
+          <div>
+            <h2>Pubblicazione con GitHub Pages</h2>
+            <p>GitHub Pages prende <code>_site</code> e lo rende visitabile dal link pubblico della app.</p>
+          </div>
+        </article>
+      </div>
+
+      <aside class="notes">
+        <h2>Cosa ricordare</h2>
+
+        <div class="note">
+          <h3>Git</h3>
+          <p>Tiene traccia delle versioni sul tuo computer.</p>
+        </div>
+
+        <div class="note">
+          <h3>GitHub</h3>
+          <p>Conserva online una copia della repo.</p>
+        </div>
+
+        <div class="note">
+          <h3>GitHub Actions</h3>
+          <p>Esegue istruzioni automatiche quando fai push.</p>
+        </div>
+
+        <div class="note">
+          <h3>GitHub Pages</h3>
+          <p>Pubblica i file come sito web.</p>
+        </div>
+
+        <div class="mini-map">
+          <strong>Formula mentale</strong>
+          <pre>modifica file
+  -> commit
+  -> push
+  -> workflow
+  -> deploy
+  -> app online</pre>
+        </div>
+
+        <p class="footer-note">Il file chiave e' pages.yml: e' la ricetta che dice a GitHub come pubblicare la tua app.</p>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

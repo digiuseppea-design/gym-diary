@@ -6,10 +6,11 @@ const fullDate = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: 'numer
 const compactDate = new Intl.DateTimeFormat('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
 const monthLabel = new Intl.DateTimeFormat('it-IT', { month: 'long', year: 'numeric' });
 const backupDateLabel = new Intl.DateTimeFormat('it-IT', { dateStyle: 'medium', timeStyle: 'short' });
+const buildDateLabel = new Intl.DateTimeFormat('it-IT', { dateStyle: 'short', timeStyle: 'short' });
 const onboardingPreview = new URLSearchParams(location.search).get('onboarding') === '1';
 const THEME_STORAGE_KEY = 'gymDiaryTheme';
 const BACKUP_REMINDER_DAYS = 7;
-const BACKUP_REMINDER_SESSIONS = 3;
+const BACKUP_REMINDER_MIN_SESSIONS = 5;
 const MAX_BACKUP_FILE_SIZE = 10 * 1024 * 1024;
 
 const state = {
@@ -102,6 +103,21 @@ function showError(error) {
   panel.textContent = error?.message || 'Qualcosa non ha funzionato. Riprova.';
   panel.hidden = false;
   setTimeout(() => { panel.hidden = true; }, 5000);
+}
+
+async function renderAppVersion() {
+  const target = $('#app-version');
+  if (!target) return;
+  try {
+    const response = await fetch('./build-info.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Build info non disponibile');
+    const info = await response.json();
+    const publishedAt = info.publishedAt ? buildDateLabel.format(new Date(info.publishedAt)) : 'versione locale';
+    const version = info.version || info.commit?.slice?.(0, 7) || 'local';
+    target.textContent = `Versione app: ${version} · pubblicata: ${publishedAt}`;
+  } catch (error) {
+    target.textContent = 'Versione app: non verificabile';
+  }
 }
 
 function navigateHome() {
@@ -267,10 +283,14 @@ async function renderProfile() {
   const profile = await getSetting('profile');
   $('#profile-title').textContent = profile?.name ? `${profile.name}.` : 'Profilo.';
   updateThemeControls(document.documentElement.dataset.theme === 'alternative' ? 'alternative' : 'original');
-  const demoImported = await getSetting('demoDataImportedV3');
-  $('#demo-data-card').classList.toggle('is-loaded', Boolean(demoImported));
-  $('#load-demo-data').disabled = Boolean(demoImported);
-  $('#load-demo-data').textContent = demoImported ? 'Demo estesa caricata' : 'Carica demo estesa';
+  const demoCard = $('#demo-data-card');
+  const demoButton = $('#load-demo-data');
+  if (demoCard && demoButton) {
+    const demoImported = await getSetting('demoDataImportedV3');
+    demoCard.classList.toggle('is-loaded', Boolean(demoImported));
+    demoButton.disabled = Boolean(demoImported);
+    demoButton.textContent = demoImported ? 'Demo estesa caricata' : 'Carica demo estesa';
+  }
   $('#checkin-date').value ||= localDateKey();
   state.allWeightEntries = await getCheckins();
   state.allEnergyEntries = (await getRecentSessions(1000)).filter(session => session.feeling).reverse();
@@ -286,12 +306,13 @@ async function renderProfile() {
 async function backupState() {
   const [sessions, checkins, lastBackup] = await Promise.all([getAllSessions(), getCheckins(), getSetting('lastBackup')]);
   const hasData = sessions.length > 0 || checkins.length > 0;
+  const hasEnoughSessionsForReminder = sessions.length >= BACKUP_REMINDER_MIN_SESSIONS;
   const lastBackupTime = lastBackup?.createdAt ? new Date(lastBackup.createdAt).getTime() : 0;
   const elapsedDays = lastBackupTime ? (Date.now() - lastBackupTime) / 86400000 : Infinity;
   const newSessions = Math.max(0, sessions.length - Number(lastBackup?.sessionCount || 0));
   const newCheckins = Math.max(0, checkins.length - Number(lastBackup?.checkinCount || 0));
-  const due = hasData && (!lastBackupTime || elapsedDays >= BACKUP_REMINDER_DAYS || newSessions >= BACKUP_REMINDER_SESSIONS);
-  return { sessions, checkins, lastBackup, hasData, due, newSessions, newCheckins };
+  const due = hasEnoughSessionsForReminder && (!lastBackupTime || elapsedDays >= BACKUP_REMINDER_DAYS);
+  return { sessions, checkins, lastBackup, hasData, hasEnoughSessionsForReminder, due, newSessions, newCheckins };
 }
 
 async function renderBackupState() {
@@ -309,7 +330,7 @@ async function renderBackupState() {
   if (reminder) {
     reminder.hidden = !info.due;
     const copy = $('#backup-reminder-copy');
-    if (copy) copy.textContent = info.lastBackup?.createdAt ? 'È il momento di aggiornare la tua copia di riserva.' : 'Hai dati che esistono soltanto su questo dispositivo.';
+    if (copy) copy.textContent = info.lastBackup?.createdAt ? 'È passata circa una settimana dall’ultima copia.' : 'Hai almeno 5 sessioni: è un buon momento per salvare una copia.';
   }
   return info;
 }
@@ -765,7 +786,7 @@ $('#exercise-search').addEventListener('input', event => updateExerciseSuggestio
 $('#results-search').addEventListener('input', event => renderResultsList(event.target.value));
 $('#set-rows').addEventListener('input', event => { const row = event.target.closest('[data-set-index]'); if (row && event.target.matches('[data-reps]')) updateRowRecord(row); });
 $('#close-pr').addEventListener('click', () => { $('#pr-celebration').hidden = true; });
-$('#load-demo-data').addEventListener('click', async () => {
+$('#load-demo-data')?.addEventListener('click', async () => {
   try {
     if (await getSetting('demoDataImportedV3')) { showToast('La demo estesa è già stata caricata'); return; }
     const response = await fetch('./demo-history.json'); if (!response.ok) throw new Error('Impossibile leggere i dati demo.');
@@ -793,7 +814,7 @@ $('#load-demo-data').addEventListener('click', async () => {
     await saveSetting('demoDataImported', true);
     await saveSetting('demoDataImportedV2', true);
     await saveSetting('demoDataImportedV3', true); state.maxRecords = await getMaxRecords();
-    $('#demo-data-card').classList.add('is-loaded'); $('#load-demo-data').textContent = 'Demo estesa caricata'; $('#load-demo-data').disabled = true;
+    $('#demo-data-card')?.classList.add('is-loaded'); if ($('#load-demo-data')) { $('#load-demo-data').textContent = 'Demo estesa caricata'; $('#load-demo-data').disabled = true; }
     await renderProfile(); showToast(`${demo.sessions.length} sessioni demo caricate`);
   } catch (error) { showError(error); }
 });
@@ -901,6 +922,7 @@ async function init() {
     if (onboardingPreview) $('#finish-onboarding').innerHTML = 'Torna al diario <span>→</span>';
     if (onboardingPreview || !await getSetting('onboardingComplete')) { $('#onboarding').hidden = false; document.body.classList.add('onboarding-open'); }
     await routeFromHash();
+    renderAppVersion();
   }
   catch (error) { showError(new Error(`Impossibile aprire il diario: ${error.message}`)); }
 }

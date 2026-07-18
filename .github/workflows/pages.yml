@@ -29,6 +29,13 @@ jobs:
 
       - name: Prepara il sito
         run: |
+          cat > app/build-info.json <<EOF
+          {
+            "version": "${GITHUB_SHA::7}",
+            "publishedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "commit": "$GITHUB_SHA"
+          }
+          EOF
           mkdir _site
           cp index.html .nojekyll _site/
           cp -R app mockup _site/

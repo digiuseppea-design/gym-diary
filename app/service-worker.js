@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gym-diary-shell-v2';
+const CACHE_NAME = 'gym-diary-shell-v6';
 const APP_SHELL = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const APP_SHELL = [
   './demo-history.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png'
 ];
@@ -37,6 +38,11 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  if (url.pathname.endsWith('/build-info.json')) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)));
+    return;
+  }
 
   if (request.mode === 'navigate') {
     event.respondWith(
