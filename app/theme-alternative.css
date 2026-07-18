@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap');
+
+/* Steel & Chalk. Ogni regola resta inattiva finché il tema non viene selezionato. */
+html[data-theme="alternative"]{
+  --ink:#eef0f1;
+  --muted:#9aa1a5;
+  --paper:#0d1012;
+  --card:#181c1e;
+  --terracotta:#d94a40;
+  --terracotta-dark:#b9342c;
+  --sage:#78b99a;
+  --line:#343b3f;
+  --soft:#20262a;
+  --shadow:0 24px 60px rgba(0,0,0,.58);
+  color-scheme:dark;
+  color:var(--ink);
+  background:var(--paper);
+}
+
+html[data-theme="alternative"] body{background:linear-gradient(160deg,#111517 0%,#090c0d 100%)}
+html[data-theme="alternative"] .paper-grain{opacity:.035;mix-blend-mode:overlay}
+html[data-theme="alternative"] ::placeholder{color:#697176;opacity:1}
+html[data-theme="alternative"] :focus-visible{outline-color:var(--terracotta)}
+
+html[data-theme="alternative"] .topbar{background:rgba(13,16,18,.94);border-bottom-color:var(--line);backdrop-filter:blur(14px)}
+html[data-theme="alternative"] .brand-mark{border-radius:6px;background:linear-gradient(180deg,#4a5358,#252b2e)}
+html[data-theme="alternative"] .avatar{border-color:var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+html[data-theme="alternative"] h1,
+html[data-theme="alternative"] h2,
+html[data-theme="alternative"] .calendar-detail h3,
+html[data-theme="alternative"] .session-modal h2,
+html[data-theme="alternative"] .session-complete-modal h2{
+  color:#f4f5f6;
+  font-family:"Oswald",sans-serif;
+  font-weight:600;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+html[data-theme="alternative"] .eyebrow,
+html[data-theme="alternative"] .soft-label{color:#aab1b5;font-family:"Oswald",sans-serif;font-weight:500;letter-spacing:.18em}
+
+html[data-theme="alternative"] .calendar-card,
+html[data-theme="alternative"] .exercise-form-card,
+html[data-theme="alternative"] .profile-card,
+html[data-theme="alternative"] .session-modal,
+html[data-theme="alternative"] .session-complete-modal,
+html[data-theme="alternative"] .pr-modal,
+html[data-theme="alternative"] .result-chart-card{
+  border:1px solid var(--line);
+  border-top:2px solid #4a5358;
+  border-radius:6px;
+  background:linear-gradient(180deg,#1b1f21,#151819);
+  box-shadow:var(--shadow);
+}
+
+html[data-theme="alternative"] .primary-button{
+  border:1px solid #596267;
+  border-radius:4px;
+  background:linear-gradient(180deg,#485156,#2b3134);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 22px rgba(0,0,0,.4);
+  color:#f4f5f6;
+  font-family:"Oswald",sans-serif;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+html[data-theme="alternative"] .primary-button:hover{border-color:var(--terracotta);background:linear-gradient(180deg,#566066,#343b3f)}
+html[data-theme="alternative"] .secondary-button{border-color:var(--line);background:#202528;color:var(--ink)}
+html[data-theme="alternative"] .secondary-button:hover{border-color:#596267;background:#282e31}
+html[data-theme="alternative"] .text-button,
+html[data-theme="alternative"] .back-link,
+html[data-theme="alternative"] .quiet-link{color:#b5bcc0}
+
+html[data-theme="alternative"] input,
+html[data-theme="alternative"] select,
+html[data-theme="alternative"] textarea{border-color:var(--line);border-radius:4px;background:#121617;color:var(--ink)}
+html[data-theme="alternative"] .session-name-field input,
+html[data-theme="alternative"] .exercise-search-box input,
+html[data-theme="alternative"] .exercise-note textarea,
+html[data-theme="alternative"] .profile-card input,
+html[data-theme="alternative"] .profile-card select,
+html[data-theme="alternative"] .profile-card textarea,
+html[data-theme="alternative"] .weight-modal input,
+html[data-theme="alternative"] .weight-modal textarea,
+html[data-theme="alternative"] .session-complete-note textarea{background:#121617;color:var(--ink)}
+
+html[data-theme="alternative"] .diary-calendar>span,
+html[data-theme="alternative"] .diary-calendar>button{border-color:var(--line);color:var(--ink);font-family:"Oswald",sans-serif;font-weight:400}
+html[data-theme="alternative"] .diary-calendar .outside{color:#586064}
+html[data-theme="alternative"] .diary-calendar .future{background:rgba(255,255,255,.008);color:#454c50}
+html[data-theme="alternative"] .diary-calendar button:hover{background:#23292c}
+html[data-theme="alternative"] .diary-calendar .today{color:var(--terracotta);font-weight:600}
+html[data-theme="alternative"] .month-nav button{border-color:var(--line);color:#b5bcc0}
+html[data-theme="alternative"] .calendar-tooltip{border-color:#4a5358;background:rgba(24,28,30,.98);box-shadow:0 14px 38px rgba(0,0,0,.5);color:var(--ink)}
+
+html[data-theme="alternative"] .session-card:hover{background:rgba(255,255,255,.035)}
+html[data-theme="alternative"] .session-list-more{border-color:var(--line);background:#15191b}
+html[data-theme="alternative"] .exercise-suggestions{border-color:var(--line);background:#171b1d;box-shadow:0 18px 45px rgba(0,0,0,.55)}
+html[data-theme="alternative"] .suggestion{border-bottom-color:var(--line);color:var(--ink)}
+html[data-theme="alternative"] .suggestion:hover,
+html[data-theme="alternative"] .suggestion:focus{background:#252b2e}
+html[data-theme="alternative"] .selected-exercise{background:#22282b;color:var(--ink)}
+html[data-theme="alternative"] .suggestion-placeholder{background:#262c2f;color:#aab1b5}
+html[data-theme="alternative"] .logged-set{background:#242a2d;color:var(--ink)}
+html[data-theme="alternative"] .set-row{border-bottom-color:var(--line)}
+html[data-theme="alternative"] .set-row.editable input{border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);font-family:"Oswald",sans-serif;font-weight:500}
+html[data-theme="alternative"] .set-row.editable input:focus{border-bottom-color:var(--terracotta);outline:none}
+html[data-theme="alternative"] .set-row.set-header span{color:var(--muted);font-family:"Oswald",sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+
+html[data-theme="alternative"] .last-exposure{border-color:var(--line);border-radius:6px;background:#121617}
+html[data-theme="alternative"] .reference-title{border-color:#495156;background:#1d2224}
+html[data-theme="alternative"] .reference-history strong,
+html[data-theme="alternative"] .rm-chip strong,
+html[data-theme="alternative"] .profile-summary strong,
+html[data-theme="alternative"] .modal-stats strong,
+html[data-theme="alternative"] .result-latest strong{font-family:"Oswald",sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+html[data-theme="alternative"] .reference-rm>div,
+html[data-theme="alternative"] .reference-rm>div.rm-chip{background:#202629}
+html[data-theme="alternative"] .weight-field [data-rep-best]{color:#e4b765}
+
+html[data-theme="alternative"] .chart-periods{border-color:var(--line);border-radius:4px;background:#121617}
+html[data-theme="alternative"] .chart-periods button{color:#969ea2}
+html[data-theme="alternative"] .chart-periods button:hover{color:var(--ink)}
+html[data-theme="alternative"] .chart-periods button.is-active{background:#3e474c;color:#f4f5f6;box-shadow:none}
+html[data-theme="alternative"] .result-exercise-card:hover,
+html[data-theme="alternative"] .result-exercise-card:focus-visible{background:rgba(255,255,255,.035)}
+html[data-theme="alternative"] .result-exercise-mark{background:#242a2d;color:var(--terracotta)}
+html[data-theme="alternative"] .result-rep-filters button{border-color:var(--line);background:#202629;color:#aab1b5}
+html[data-theme="alternative"] .result-rep-filters button:hover{color:#fff}
+html[data-theme="alternative"] .result-rep-filters button.is-active{border-color:var(--terracotta);background:var(--terracotta);color:#fff}
+
+html[data-theme="alternative"] .weight-point-popover,
+html[data-theme="alternative"] .energy-point-popover,
+html[data-theme="alternative"] .progress-point-popover{border-color:#4a5358;background:rgba(24,28,30,.98);box-shadow:0 12px 32px rgba(0,0,0,.55);color:var(--ink)}
+html[data-theme="alternative"] .weight-point>span,
+html[data-theme="alternative"] .energy-point>span,
+html[data-theme="alternative"] .progress-point>span{border-color:#181c1e}
+html[data-theme="alternative"] .weight-chart,
+html[data-theme="alternative"] .energy-chart,
+html[data-theme="alternative"] .result-chart{border-color:var(--line)}
+
+html[data-theme="alternative"] .profile-max-list article,
+html[data-theme="alternative"] .energy-trend article{border-color:var(--line);background:#171b1d}
+html[data-theme="alternative"] .energy-score{background:#252b2e}
+html[data-theme="alternative"] .checkin-list article{border-bottom-color:var(--line)}
+html[data-theme="alternative"] .demo-data-card{border-color:var(--line);background:#171b1d}
+html[data-theme="alternative"] .theme-options>button{border-color:var(--line);background:#15191b;color:var(--ink)}
+html[data-theme="alternative"] .theme-options>button:hover,
+html[data-theme="alternative"] .theme-options>button.is-active{border-color:var(--terracotta)}
+
+html[data-theme="alternative"] .feeling-scale button{border-color:var(--line);background:#181d1f;color:var(--ink)}
+html[data-theme="alternative"] .feeling-scale button:hover{border-color:#596267;background:#242a2d}
+html[data-theme="alternative"] .feeling-scale button.is-selected{border-color:var(--terracotta);background:#34211f;color:#fff}
+html[data-theme="alternative"] .session-complete-overlay,
+html[data-theme="alternative"] .pr-celebration,
+html[data-theme="alternative"] .session-modal-overlay{background:rgba(4,6,7,.72)}
+html[data-theme="alternative"] .modal-stats div,
+html[data-theme="alternative"] .modal-reading{background:#202629;color:var(--ink)}
+html[data-theme="alternative"] .pr-modal>svg{stroke:#d8ad5d}
+html[data-theme="alternative"] .toast{background:#2a3033;color:#f4f5f6;box-shadow:0 8px 25px rgba(0,0,0,.5)}
+
+html[data-theme="alternative"] .demo-nav{border:1px solid var(--line);background:rgba(13,16,18,.96)}
+html[data-theme="alternative"] .demo-nav a{color:#aeb5b9}
+html[data-theme="alternative"] .demo-nav a.is-current{background:linear-gradient(180deg,#485156,#2b3134);color:#f4f5f6;font-family:"Oswald",sans-serif;font-weight:600}
+
+/* Mantiene leggibile anche la guida iniziale quando viene riaperta dal Profilo. */
+html[data-theme="alternative"] .onboarding{background:radial-gradient(circle at 75% 15%,rgba(217,74,64,.13),transparent 30%),linear-gradient(145deg,#151a1c,#090c0d)}
+html[data-theme="alternative"] .onboarding-progress i{background:#30373a}
+html[data-theme="alternative"] .onboarding-progress i.active{background:var(--terracotta)}
+html[data-theme="alternative"] .max-entry,
+html[data-theme="alternative"] .onboarding-demo,
+html[data-theme="alternative"] .tour-card{border-color:var(--line);background:rgba(24,28,30,.92)}
+html[data-theme="alternative"] .demo-search,
+html[data-theme="alternative"] .demo-memory,
+html[data-theme="alternative"] .tour-exercise,
+html[data-theme="alternative"] .tour-feeling,
+html[data-theme="alternative"] .tour-reference b,
+html[data-theme="alternative"] .onboarding-max-list>span{background:#242a2d;color:var(--ink)}
+html[data-theme="alternative"] .tour-feeling i{border-color:var(--line);background:#15191b;color:var(--ink)}
+html[data-theme="alternative"] .tour-feeling i.selected{border-color:var(--terracotta);background:var(--terracotta);color:#fff}
+html[data-theme="alternative"] .tour-reps mark{background:#203029;color:var(--sage)}

@@ -1,0 +1,10 @@
+# Sistema operativo e strumenti locali
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+*.log
+
+# File temporanei
+*.tmp
+*.bak

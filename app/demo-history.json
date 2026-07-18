@@ -1,0 +1,278 @@
+{
+  "version": 3,
+  "description": "Demo estesa gennaio-luglio 2026: 28 sessioni, progressioni, plateau, deload, rep diverse e note tecniche",
+  "maxRecords": [
+    { "exerciseName": "Panca piana", "weight": 62.5, "recordedAt": "2026-06-20T10:00:00.000Z" },
+    { "exerciseName": "Squat HB", "weight": 100, "recordedAt": "2026-06-21T10:00:00.000Z" },
+    { "exerciseName": "Stacco regular", "weight": 125, "recordedAt": "2026-06-22T10:00:00.000Z" }
+  ],
+  "weightEntries": [
+    { "date": "2026-01-08", "weight": 64.8, "note": "Misurazione iniziale" },
+    { "date": "2026-01-22", "weight": 64.6, "note": "Al mattino" },
+    { "date": "2026-02-06", "weight": 64.4, "note": "Al mattino" },
+    { "date": "2026-02-20", "weight": 64.5, "note": "Settimana più stressante" },
+    { "date": "2026-03-12", "weight": 64.7, "note": "Ciclo e ritenzione" },
+    { "date": "2026-03-26", "weight": 64.2, "note": "Al mattino" },
+    { "date": "2026-04-16", "weight": 63.9, "note": "Dopo una settimana regolare" },
+    { "date": "2026-04-30", "weight": 63.8, "note": "Al mattino" },
+    { "date": "2026-05-14", "weight": 63.5, "note": "Al mattino, a digiuno" },
+    { "date": "2026-05-28", "weight": 63.6, "note": "Dopo cena fuori" },
+    { "date": "2026-06-11", "weight": 63.1, "note": "Buona regolarità" },
+    { "date": "2026-06-25", "weight": 63.2, "note": "Al mattino" },
+    { "date": "2026-07-09", "weight": 62.9, "note": "Al mattino" }
+  ],
+  "sessions": [
+    {
+      "date": "2026-01-05", "name": "Parte alta A", "feeling": 3, "sessionNote": "Prima settimana: carichi prudenti e tecnica pulita.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 40, "reps": 8 }, { "weight": 37.5, "reps": 10 }] },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 40, "reps": 10 }, { "weight": 37.5, "reps": 12 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 35, "reps": 10 }, { "weight": 32.5, "reps": 12 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 6, "reps": 15 }, { "weight": 6, "reps": 14 }] }
+      ]
+    },
+    {
+      "date": "2026-01-12", "name": "Parte alta A", "feeling": 3, "sessionNote": "Energie normali, un po' di fatica iniziale.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 42.5, "reps": 8 }, { "weight": 40, "reps": 10 }] },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 42.5, "reps": 10 }, { "weight": 40, "reps": 12 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 37.5, "reps": 10 }, { "weight": 35, "reps": 12 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 6, "reps": 15 }, { "weight": 7, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-01-19", "name": "Gambe A", "feeling": 4, "sessionNote": "Buon controllo, margine sui fondamentali.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 70, "reps": 6 }, { "weight": 65, "reps": 8 }] },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 70, "reps": 10 }, { "weight": 65, "reps": 12 }] },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 25, "reps": 12 }, { "weight": 25, "reps": 11 }] },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 40, "reps": 12 }, { "weight": 40, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-01-26", "name": "Parte alta B", "feeling": 3, "sessionNote": "Seduta regolare, riferimenti iniziali.",
+      "exercises": [
+        { "name": "Military press", "sets": [{ "weight": 25, "reps": 8 }, { "weight": 22.5, "reps": 10 }] },
+        { "name": "Chest press pacco pesi", "sets": [{ "weight": 35, "reps": 10 }, { "weight": 32.5, "reps": 12 }] },
+        { "name": "Rematore con manubrio", "sets": [{ "weight": 20, "reps": 10 }, { "weight": 18, "reps": 12 }] },
+        { "name": "Curl manubri", "sets": [{ "weight": 8, "reps": 12 }, { "weight": 8, "reps": 10 }] }
+      ]
+    },
+    {
+      "date": "2026-02-02", "name": "Gambe B", "feeling": 3, "sessionNote": "Stacco tecnico, nessuna serie al limite.",
+      "exercises": [
+        { "name": "Stacco regular", "sets": [{ "weight": 80, "reps": 5 }, { "weight": 75, "reps": 6 }] },
+        { "name": "Leg press a 45° carico libero", "sets": [{ "weight": 90, "reps": 10 }, { "weight": 85, "reps": 12 }] },
+        { "name": "Leg extension", "sets": [{ "weight": 25, "reps": 12 }, { "weight": 25, "reps": 11 }] },
+        { "name": "Leg curl steso", "sets": [{ "weight": 25, "reps": 10 }, { "weight": 22.5, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-02-09", "name": "Parte alta A", "feeling": 4, "sessionNote": "Buone energie e concentrazione.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 45, "reps": 8 }, { "weight": 42.5, "reps": 10 }] },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 45, "reps": 10 }, { "weight": 42.5, "reps": 12 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 40, "reps": 10 }, { "weight": 37.5, "reps": 12 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 7, "reps": 15 }, { "weight": 7, "reps": 13 }] }
+      ]
+    },
+    {
+      "date": "2026-02-16", "name": "Gambe A", "feeling": 4, "sessionNote": "Progressione lineare senza perdere profondità.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 72.5, "reps": 6 }, { "weight": 67.5, "reps": 8 }] },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 75, "reps": 10 }, { "weight": 70, "reps": 12 }] },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 27.5, "reps": 12 }, { "weight": 27.5, "reps": 10 }] },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 42.5, "reps": 12 }, { "weight": 42.5, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-02-23", "name": "Parte alta B", "feeling": 4, "sessionNote": "Spinte solide, ultima serie di curl più faticosa.",
+      "exercises": [
+        { "name": "Military press", "sets": [{ "weight": 27.5, "reps": 8 }, { "weight": 25, "reps": 10 }] },
+        { "name": "Chest press pacco pesi", "sets": [{ "weight": 37.5, "reps": 10 }, { "weight": 35, "reps": 12 }] },
+        { "name": "Rematore con manubrio", "sets": [{ "weight": 22, "reps": 10 }, { "weight": 20, "reps": 12 }] },
+        { "name": "Curl manubri", "sets": [{ "weight": 9, "reps": 12 }, { "weight": 9, "reps": 10 }] }
+      ]
+    },
+    {
+      "date": "2026-03-02", "name": "Gambe B", "feeling": 4, "sessionNote": "Stacco fluido, buona spinta sulla pressa.",
+      "exercises": [
+        { "name": "Stacco regular", "sets": [{ "weight": 85, "reps": 5 }, { "weight": 80, "reps": 6 }] },
+        { "name": "Leg press a 45° carico libero", "sets": [{ "weight": 100, "reps": 10 }, { "weight": 95, "reps": 12 }] },
+        { "name": "Leg extension", "sets": [{ "weight": 27.5, "reps": 12 }, { "weight": 27.5, "reps": 11 }] },
+        { "name": "Leg curl steso", "sets": [{ "weight": 27.5, "reps": 10 }, { "weight": 25, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-03-09", "name": "Parte alta A", "feeling": 3, "sessionNote": "Panca stabile, tirate ancora in crescita.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 45, "reps": 8 }, { "weight": 45, "reps": 8 }, { "weight": 42.5, "reps": 10 }], "note": "Carico stabile, esecuzione più pulita" },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 47.5, "reps": 10 }, { "weight": 45, "reps": 12 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 42.5, "reps": 10 }, { "weight": 40, "reps": 12 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 8, "reps": 12 }, { "weight": 7, "reps": 15 }] }
+      ]
+    },
+    {
+      "date": "2026-03-16", "name": "Gambe A", "feeling": 2, "sessionNote": "Giornata sottotono, recupero non ottimale.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 72.5, "reps": 6 }, { "weight": 65, "reps": 10 }], "note": "Ultima serie rallentata" },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 77.5, "reps": 10 }, { "weight": 72.5, "reps": 12 }] },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 27.5, "reps": 12 }, { "weight": 25, "reps": 12 }] },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 45, "reps": 12 }, { "weight": 45, "reps": 11 }] }
+      ]
+    },
+    {
+      "date": "2026-03-23", "name": "Parte alta B", "feeling": 3, "sessionNote": "Seduta normale, nessun cedimento.",
+      "exercises": [
+        { "name": "Military press", "sets": [{ "weight": 27.5, "reps": 8 }, { "weight": 25, "reps": 10 }] },
+        { "name": "Chest press pacco pesi", "sets": [{ "weight": 40, "reps": 10 }, { "weight": 37.5, "reps": 12 }] },
+        { "name": "Rematore con manubrio", "sets": [{ "weight": 22, "reps": 10 }, { "weight": 22, "reps": 10 }] },
+        { "name": "Curl manubri", "sets": [{ "weight": 9, "reps": 12 }, { "weight": 9, "reps": 11 }] }
+      ]
+    },
+    {
+      "date": "2026-04-06", "name": "Gambe B", "feeling": 3, "sessionNote": "Settimana di scarico: volume e carichi ridotti.",
+      "exercises": [
+        { "name": "Stacco regular", "sets": [{ "weight": 75, "reps": 6 }, { "weight": 70, "reps": 8 }], "note": "Deload" },
+        { "name": "Leg press a 45° carico libero", "sets": [{ "weight": 90, "reps": 12 }, { "weight": 85, "reps": 12 }], "note": "Deload" },
+        { "name": "Leg extension", "sets": [{ "weight": 25, "reps": 15 }, { "weight": 25, "reps": 15 }] },
+        { "name": "Leg curl steso", "sets": [{ "weight": 25, "reps": 12 }, { "weight": 22.5, "reps": 15 }] }
+      ]
+    },
+    {
+      "date": "2026-04-13", "name": "Parte alta A", "feeling": 3, "sessionNote": "Scarico tecnico, ripetizioni più alte.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 40, "reps": 10 }, { "weight": 37.5, "reps": 12 }], "note": "Deload" },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 42.5, "reps": 12 }, { "weight": 40, "reps": 15 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 37.5, "reps": 12 }, { "weight": 35, "reps": 15 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 6, "reps": 15 }, { "weight": 6, "reps": 15 }] }
+      ]
+    },
+    {
+      "date": "2026-04-20", "name": "Parte alta A", "feeling": 3, "sessionNote": "Sensazioni nella media, migliorate durante la sessione.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 50, "reps": 6 }, { "weight": 47.5, "reps": 8 }], "note": "Fermo al petto" },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 50, "reps": 10 }, { "weight": 47.5, "reps": 12 }], "note": "Fermo al petto" },
+        { "name": "Pulley presa V", "sets": [{ "weight": 42.5, "reps": 10 }, { "weight": 40, "reps": 12 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 8, "reps": 15 }, { "weight": 8, "reps": 13 }] }
+      ]
+    },
+    {
+      "date": "2026-04-27", "name": "Gambe A", "feeling": 4, "sessionNote": "Rientro dallo scarico con buona velocità.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 65, "reps": 8 }, { "weight": 62.5, "reps": 10 }], "note": "Rientro dal deload" },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 80, "reps": 10 }, { "weight": 75, "reps": 12 }] },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 30, "reps": 12 }, { "weight": 27.5, "reps": 12 }] },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 47.5, "reps": 12 }, { "weight": 47.5, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-05-04", "name": "Parte alta B", "feeling": 4, "sessionNote": "Nuovi riferimenti su military e rematore.",
+      "exercises": [
+        { "name": "Military press", "sets": [{ "weight": 30, "reps": 8 }, { "weight": 27.5, "reps": 10 }] },
+        { "name": "Chest press pacco pesi", "sets": [{ "weight": 42.5, "reps": 10 }, { "weight": 40, "reps": 12 }] },
+        { "name": "Rematore con manubrio", "sets": [{ "weight": 24, "reps": 10 }, { "weight": 22, "reps": 12 }] },
+        { "name": "Curl manubri", "sets": [{ "weight": 10, "reps": 12 }, { "weight": 10, "reps": 10 }] }
+      ]
+    },
+    {
+      "date": "2026-05-11", "name": "Gambe B", "feeling": 4, "sessionNote": "Stacco solido, pressa impegnativa ma regolare.",
+      "exercises": [
+        { "name": "Stacco regular", "sets": [{ "weight": 90, "reps": 5 }, { "weight": 85, "reps": 6 }] },
+        { "name": "Leg press a 45° carico libero", "sets": [{ "weight": 110, "reps": 10 }, { "weight": 105, "reps": 12 }] },
+        { "name": "Leg extension", "sets": [{ "weight": 32.5, "reps": 12 }, { "weight": 30, "reps": 15 }] },
+        { "name": "Leg curl steso", "sets": [{ "weight": 30, "reps": 10 }, { "weight": 27.5, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-05-18", "name": "Gambe A", "feeling": 4, "sessionNote": "Buon ritmo e buona energia generale.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 77.5, "reps": 6 }, { "weight": 72.5, "reps": 8 }] },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 85, "reps": 10 }, { "weight": 80, "reps": 12 }] },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 30, "reps": 12 }, { "weight": 30, "reps": 11 }] },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 50, "reps": 12 }, { "weight": 50, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-05-25", "name": "Parte alta A", "feeling": 3, "sessionNote": "Panca ancora stabile, tirate in progresso.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 47.5, "reps": 8 }, { "weight": 45, "reps": 10 }], "note": "Ultima ripetizione lenta" },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 50, "reps": 10 }, { "weight": 47.5, "reps": 12 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 45, "reps": 10 }, { "weight": 42.5, "reps": 12 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 9, "reps": 12 }, { "weight": 8, "reps": 15 }] }
+      ]
+    },
+    {
+      "date": "2026-06-01", "name": "Gambe B", "feeling": 3, "sessionNote": "Prestazioni stabili, recupero medio.",
+      "exercises": [
+        { "name": "Stacco regular", "sets": [{ "weight": 90, "reps": 5 }, { "weight": 87.5, "reps": 6 }] },
+        { "name": "Leg press a 45° carico libero", "sets": [{ "weight": 112.5, "reps": 10 }, { "weight": 105, "reps": 12 }] },
+        { "name": "Leg extension", "sets": [{ "weight": 35, "reps": 12 }, { "weight": 32.5, "reps": 15 }] },
+        { "name": "Leg curl steso", "sets": [{ "weight": 30, "reps": 10 }, { "weight": 30, "reps": 10 }] }
+      ]
+    },
+    {
+      "date": "2026-06-08", "name": "Parte alta B", "feeling": 3, "sessionNote": "Military stabile, accessori leggermente migliori.",
+      "exercises": [
+        { "name": "Military press", "sets": [{ "weight": 30, "reps": 8 }, { "weight": 27.5, "reps": 10 }] },
+        { "name": "Chest press pacco pesi", "sets": [{ "weight": 45, "reps": 10 }, { "weight": 42.5, "reps": 12 }] },
+        { "name": "Rematore con manubrio", "sets": [{ "weight": 24, "reps": 10 }, { "weight": 24, "reps": 10 }] },
+        { "name": "Curl manubri", "sets": [{ "weight": 11, "reps": 12 }, { "weight": 10, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-06-15", "name": "Gambe B", "feeling": 5, "sessionNote": "Mi sono sentita molto energica per tutta la sessione.",
+      "exercises": [
+        { "name": "Stacco regular", "sets": [{ "weight": 95, "reps": 5 }, { "weight": 90, "reps": 6 }, { "weight": 85, "reps": 8 }] },
+        { "name": "Leg press a 45° carico libero", "sets": [{ "weight": 117.5, "reps": 10 }, { "weight": 110, "reps": 12 }] },
+        { "name": "Leg extension", "sets": [{ "weight": 35, "reps": 12 }, { "weight": 35, "reps": 11 }] },
+        { "name": "Leg curl steso", "sets": [{ "weight": 32.5, "reps": 10 }, { "weight": 30, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-06-22", "name": "Parte alta A", "feeling": 4, "sessionNote": "Nuovo riferimento sulle otto ripetizioni di panca.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 50, "reps": 8 }, { "weight": 47.5, "reps": 10 }] },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 52.5, "reps": 10 }, { "weight": 50, "reps": 12 }] },
+        { "name": "Pulley presa V", "sets": [{ "weight": 45, "reps": 10 }, { "weight": 45, "reps": 10 }] },
+        { "name": "Alzate laterali", "sets": [{ "weight": 9, "reps": 15 }, { "weight": 9, "reps": 13 }] }
+      ]
+    },
+    {
+      "date": "2026-06-29", "name": "Gambe A", "feeling": 4, "sessionNote": "Carichi in crescita senza perdita tecnica.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 80, "reps": 6 }, { "weight": 75, "reps": 8 }] },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 95, "reps": 10 }, { "weight": 90, "reps": 12 }] },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 32.5, "reps": 12 }, { "weight": 32.5, "reps": 10 }] },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 52.5, "reps": 12 }, { "weight": 52.5, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-07-06", "name": "Parte alta B", "feeling": 4, "sessionNote": "Buona seduta, progressione distribuita su tutti gli esercizi.",
+      "exercises": [
+        { "name": "Military press", "sets": [{ "weight": 32.5, "reps": 8 }, { "weight": 30, "reps": 10 }] },
+        { "name": "Chest press pacco pesi", "sets": [{ "weight": 47.5, "reps": 10 }, { "weight": 45, "reps": 12 }] },
+        { "name": "Rematore con manubrio", "sets": [{ "weight": 26, "reps": 10 }, { "weight": 24, "reps": 12 }] },
+        { "name": "Curl manubri", "sets": [{ "weight": 12, "reps": 12 }, { "weight": 11, "reps": 12 }] }
+      ]
+    },
+    {
+      "date": "2026-07-10", "name": "Parte alta A", "feeling": 4, "sessionNote": "Ottime sensazioni sui fondamentali, tirate controllate.",
+      "exercises": [
+        { "name": "Panca piana", "sets": [{ "weight": 52.5, "reps": 6 }, { "weight": 50, "reps": 8 }], "note": "Fermo al petto" },
+        { "name": "Lat machine presa prona", "sets": [{ "weight": 55, "reps": 8 }, { "weight": 52.5, "reps": 10 }], "note": "Fermo al petto" },
+        { "name": "Pulley presa V", "sets": [{ "weight": 47.5, "reps": 10 }, { "weight": 45, "reps": 12 }], "note": "Tensione continua" },
+        { "name": "Alzate laterali", "sets": [{ "weight": 10, "reps": 12 }, { "weight": 9, "reps": 15 }], "note": "Eccentrica controllata" }
+      ]
+    },
+    {
+      "date": "2026-07-14", "name": "Gambe A", "feeling": 4, "sessionNote": "Nuovi riferimenti, fatica gestibile.",
+      "exercises": [
+        { "name": "Squat HB", "sets": [{ "weight": 82.5, "reps": 6 }, { "weight": 77.5, "reps": 8 }], "note": "Fermo breve in buca" },
+        { "name": "Hip thrust bilanciere", "sets": [{ "weight": 100, "reps": 10 }, { "weight": 95, "reps": 12 }], "note": "Fermo in massima contrazione" },
+        { "name": "Leg curl seduto", "sets": [{ "weight": 35, "reps": 12 }, { "weight": 32.5, "reps": 15 }], "note": "Eccentrica lenta" },
+        { "name": "Calf raise al multipower", "sets": [{ "weight": 55, "reps": 12 }, { "weight": 55, "reps": 11 }] }
+      ]
+    }
+  ]
+}

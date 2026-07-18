@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f0e7">
+  <title>Gym Diary — Mockup</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="mockup-journal">
+  <div class="paper-grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#home" data-route="home" aria-label="Gym Diary, torna alla home">
+      <span class="brand-mark">G</span><span>Gym Diary</span>
+    </a>
+    <button class="avatar" type="button" aria-label="Profilo di Marta">M</button>
+  </header>
+
+  <main class="app-shell">
+    <section class="view is-active" id="home" aria-labelledby="home-title" data-page="16 lug — pag. 1">
+      <div class="eyebrow">Giovedì, 16 luglio</div>
+      <div class="hero-row">
+        <div>
+          <h1 id="home-title">Bentornata, Marta.</h1>
+          <p class="lead">Qui trovi quello che hai fatto, senza rumore intorno.</p>
+        </div>
+        <div class="hero-actions"><a class="sheet-link" href="#sheets" data-route="sheets">Le tue schede</a><a class="primary-button desktop-action" href="#workout" data-route="workout">Inizia allenamento <span>→</span></a></div>
+      </div>
+
+      <article class="calendar-card">
+        <div class="calendar-head">
+          <div><span class="soft-label">Il tuo mese</span><h2>Luglio 2026</h2></div>
+          <div class="month-nav" aria-label="Cambia mese"><button type="button" aria-label="Mese precedente">←</button><span>6 allenamenti</span><button type="button" aria-label="Mese successivo">→</button></div>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
+        <div class="calendar-grid" aria-label="Allenamenti di luglio 2026">
+          <span class="outside">29</span><span class="outside">30</span><span>1</span><span>2</span><button class="trained" data-session="3" aria-label="3 luglio, Parte alta A">3<i></i></button><span>4</span><span>5</span>
+          <span>6</span><button class="trained" data-session="7" aria-label="7 luglio, Gambe A">7<i></i></button><button class="trained" data-session="8" aria-label="8 luglio, Gambe B">8<i></i></button><span>9</span><span>10</span><button class="trained" data-session="11" aria-label="11 luglio, Parte alta B">11<i></i></button><span>12</span>
+          <span>13</span><button class="trained" data-session="14" aria-label="14 luglio, Gambe A">14<i></i></button><span>15</span><button class="trained today" data-session="16" aria-label="16 luglio, Gambe A">16<i></i></button><span>17</span><span>18</span><span>19</span>
+          <span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span>
+          <span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span class="outside">1</span><span class="outside">2</span>
+        </div>
+      </article>
+
+      <div class="section-heading">
+        <div><span class="eyebrow">Di recente</span><h2>I tuoi ultimi allenamenti</h2></div>
+        <span class="quiet-link">6 sessioni a luglio</span>
+      </div>
+      <div class="session-list">
+        <article class="session-card">
+          <div class="date-tile"><span>Mar 14 lug</span></div>
+          <div class="session-main"><h3>Gambe A</h3><p>Squat · Hip thrust · Leg curl · Polpacci</p><span class="note-good">Squat meglio dell’ultima volta</span></div>
+          <div class="session-meta"><strong>56 min</strong><span>12 serie</span></div>
+        </article>
+        <article class="session-card">
+          <div class="date-tile"><span>Sab 11 lug</span></div>
+          <div class="session-main"><h3>Parte alta B</h3><p>Lat machine · Panca piana · Pulley · Alzate laterali</p><span>Lat machine: nuovo riferimento personale</span></div>
+          <div class="session-meta"><strong>48 min</strong><span>13 serie</span></div>
+        </article>
+        <article class="session-card muted-session">
+          <div class="date-tile"><span>Mer 8 lug</span></div>
+          <div class="session-main"><h3>Gambe B</h3><p>Stacco rumeno · Pressa · Leg extension</p><span>Dati completi per 3 esercizi su 3</span></div>
+          <div class="session-meta"><strong>44 min</strong><span>10 serie</span></div>
+        </article>
+      </div>
+      <a class="primary-button mobile-start" href="#workout" data-route="workout">Inizia allenamento <span>→</span></a>
+    </section>
+
+    <section class="view sheets-view" id="sheets" aria-labelledby="sheets-title" data-page="16 lug — pag. 2">
+      <a class="back-link" href="#home" data-route="home">← Diario</a>
+      <div class="sheets-hero">
+        <div><span class="eyebrow">Il tuo programma</span><h1 id="sheets-title">Programma — Routine estate</h1><p class="lead">Porta qui la scheda che hai già scelto, da sola o con il tuo coach. Gym Diary la conserva per rendere più rapido il log.</p></div>
+        <div class="owner-note"><span>Creata da te</span><strong>“Routine estate”</strong><small>Ultima modifica 12 luglio</small></div>
+      </div>
+      <div class="sheet-import">
+        <div><span class="soft-label">Inserimento rapido</span><h2>Incolla il tuo programma</h2><p>Scrivilo come lo hai ricevuto. Potrai controllare ogni riga prima di salvarlo.</p></div>
+        <textarea aria-label="Programma da importare">Gambe A
+Squat con bilanciere — 3 × 8
+Hip thrust — 3 × 10
+Leg curl — 3 × 12
+Calf raise — 3 × 15</textarea>
+        <button class="secondary-button parse-sheet" type="button">Rivedi nella griglia ↓</button>
+      </div>
+      <article class="sheet-editor">
+        <div class="sheet-editor-head"><div><span class="soft-label">Rivedi e correggi</span><label class="day-name">Nome del giorno <input value="Gambe A" aria-label="Nome del giorno di allenamento"></label><p>Questo nome lo hai scelto tu.</p></div><button class="add-day" type="button">＋ Aggiungi giorno</button></div>
+        <div class="sheet-grid" role="table" aria-label="Esercizi di Gambe A">
+          <div class="sheet-grid-head" role="row"><span>Esercizio</span><span>Serie</span><span>Rip. target</span><span></span></div>
+          <div role="row"><input value="Squat con bilanciere" aria-label="Esercizio 1"><input value="3" inputmode="numeric" aria-label="Serie esercizio 1"><input value="8" aria-label="Ripetizioni esercizio 1"><button aria-label="Rimuovi squat">×</button></div>
+          <div role="row"><input value="Hip thrust" aria-label="Esercizio 2"><input value="3" inputmode="numeric" aria-label="Serie esercizio 2"><input value="10" aria-label="Ripetizioni esercizio 2"><button aria-label="Rimuovi hip thrust">×</button></div>
+          <div role="row"><input value="Leg curl" aria-label="Esercizio 3"><input value="3" inputmode="numeric" aria-label="Serie esercizio 3"><input value="12" aria-label="Ripetizioni esercizio 3"><button aria-label="Rimuovi leg curl">×</button></div>
+          <div role="row"><input value="Calf raise" aria-label="Esercizio 4"><input value="3" inputmode="numeric" aria-label="Serie esercizio 4"><input value="15" aria-label="Ripetizioni esercizio 4"><button aria-label="Rimuovi calf raise">×</button></div>
+        </div>
+        <button class="add-exercise" type="button">＋ Aggiungi esercizio</button>
+        <div class="sheet-save"><span>Nessun esercizio viene aggiunto o cambiato da Gym Diary.</span><button class="primary-button save-sheet" type="button">Salva la mia scheda</button></div>
+      </article>
+    </section>
+
+    <section class="view workout-view" id="workout" aria-labelledby="workout-title" data-page="16 lug — pag. 3">
+      <div class="workout-head">
+        <a class="back-link" href="#home" data-route="home">← Esci</a>
+        <div><span class="eyebrow">Dalla tua scheda “Routine estate” · 32 min</span><h1 id="workout-title">Gambe A</h1><small class="chosen-name">Nome scelto da Marta</small></div>
+        <button class="text-button" type="button" data-route="summary">Termina</button>
+      </div>
+      <div class="exercise-progress" aria-label="Esercizio 1 di 4"><span style="width:25%"></span></div>
+      <p class="progress-label">1 di 4 · Squat con bilanciere</p>
+
+      <div class="logging-layout">
+        <section class="current-exercise">
+          <div class="exercise-title-row">
+            <div><span class="soft-label">Esercizio corrente</span><h2>Squat con bilanciere</h2></div>
+            <a href="#timeline" data-route="timeline" class="history-link">Vedi storico ↗</a>
+          </div>
+          <div class="last-time">
+            <span class="margin-note">ultima volta<br>14 luglio</span>
+            <strong>60 kg × 8</strong>
+            <small>migliore serie · RPE 8</small>
+          </div>
+          <div class="set-table" aria-label="Serie dell'esercizio">
+            <div class="set-row set-header"><span>Serie</span><span>Kg</span><span>Rip.</span><span></span></div>
+            <div class="set-row completed"><strong>1</strong><span>60</span><span>8</span><button aria-label="Serie 1 completata">✓</button></div>
+            <div class="set-row completed"><strong>2</strong><span>60</span><span>8</span><button aria-label="Serie 2 completata">✓</button></div>
+            <div class="set-row active-set"><strong>3</strong><label><span class="sr-only">Peso serie 3</span><input id="weight" inputmode="decimal" value="60"></label><label><span class="sr-only">Ripetizioni serie 3</span><input id="reps" inputmode="numeric" value="8"></label><button id="save-set" aria-label="Salva serie 3">✓</button></div>
+          </div>
+          <button class="add-set" id="add-set" type="button">＋ Aggiungi una serie</button>
+        </section>
+
+        <aside class="rest-panel">
+          <span class="soft-label">Recupero</span>
+          <div class="timer"><strong id="timer">01:24</strong><span>da ultima serie</span></div>
+          <button type="button" id="reset-timer">Azzera timer</button>
+          <blockquote>“L’ultima volta hai chiuso tre serie da 8 con 60 kg.”</blockquote>
+        </aside>
+      </div>
+      <div class="next-exercise"><span>Prossimo</span><strong>Hip thrust</strong><span>3 serie</span><button type="button">Vai →</button></div>
+    </section>
+
+    <section class="view summary-view" id="summary" aria-labelledby="summary-title" data-page="16 lug — pag. 4">
+      <div class="summary-mark">✓</div>
+      <span class="eyebrow">Allenamento registrato</span>
+      <h1 id="summary-title">Gambe A, fatto.</h1>
+      <p class="lead">Giovedì 16 luglio · 54 minuti · 12 serie</p>
+      <article class="diary-says">
+        <span class="soft-label">Oggi il diario ti dice</span>
+        <p>Lo squat è andato meglio dell’ultima volta: stessa tecnica registrata, 2 ripetizioni in più nella serie migliore.</p>
+        <p>Hai segnato un nuovo riferimento sull’hip thrust: 80 kg × 10.</p>
+        <p>Il leg curl è stabile nelle ultime 3 sessioni.</p>
+      </article>
+      <div class="summary-stats margin-note summary-margin-note">
+        <div><span>Esercizi</span><strong>4</strong></div><div><span>Serie registrate</span><strong>12</strong></div><div><span>Note</span><strong>1</strong></div>
+      </div>
+      <div class="page-closing-rule" aria-hidden="true"></div>
+      <div class="summary-actions"><a class="primary-button" href="#home" data-route="home">Torna al diario</a><a class="secondary-button" href="#timeline" data-route="timeline">Apri timeline squat</a></div>
+    </section>
+
+    <section class="view" id="timeline" aria-labelledby="timeline-title" data-page="16 lug — pag. 5">
+      <a class="back-link" href="#home" data-route="home">← Diario</a>
+      <div class="timeline-hero">
+        <div><span class="eyebrow">Cronologia esercizio</span><h1 id="timeline-title">Squat con bilanciere</h1><p class="lead">8 esposizioni registrate dal 9 giugno.</p></div>
+        <div class="personal-best"><span>Migliore serie</span><strong>62,5 kg × 8</strong><small>16 luglio 2026</small></div>
+      </div>
+      <article class="reading-card"><span class="soft-label">Lettura del diario</span><p>Nelle ultime 4 esecuzioni il riferimento è salito da 60 × 8 a 62,5 × 8. Una sessione più leggera il 30 giugno interrompe il confronto diretto, ma non il trend.</p></article>
+      <div class="timeline-list">
+        <article class="timeline-entry is-pr"><div class="timeline-date"><strong>16</strong><span>LUG</span></div><div><span class="pr-badge">Nuovo riferimento</span><h3>62,5 kg × 8</h3><p>3 serie · 8, 8, 7 ripetizioni · RPE 8,5</p></div><span class="change up">+2,5 kg</span></article>
+        <article class="timeline-entry"><div class="timeline-date"><strong>14</strong><span>LUG</span></div><div><h3>60 kg × 8</h3><p>3 serie · 8, 8, 8 ripetizioni · RPE 8</p></div><span class="change">stabile</span></article>
+        <article class="timeline-entry"><div class="timeline-date"><strong>07</strong><span>LUG</span></div><div><h3>60 kg × 8</h3><p>3 serie · 8, 7, 7 ripetizioni · RPE non registrato</p></div><span class="change">stabile</span></article>
+        <article class="timeline-entry deload"><div class="timeline-date"><strong>30</strong><span>GIU</span></div><div><span class="neutral-badge">Sessione più leggera</span><h3>50 kg × 10</h3><p>2 serie · annotazione: “settimana scarico”</p></div><span class="change">non confrontata</span></article>
+        <article class="timeline-entry"><div class="timeline-date"><strong>23</strong><span>GIU</span></div><div><h3>60 kg × 7</h3><p>3 serie · 7, 7, 6 ripetizioni · RPE 8</p></div><span class="change up">+1 rep</span></article>
+      </div>
+    </section>
+  </main>
+
+  <nav class="demo-nav" aria-label="Navigazione demo">
+    <a href="#home" data-route="home" class="is-current">Diario</a><a href="#workout" data-route="workout">Log</a><a href="#summary" data-route="summary">Riepilogo</a>
+  </nav>
+  <div class="calendar-tooltip" id="calendar-tooltip" role="tooltip" aria-hidden="true"></div>
+  <div class="session-modal-overlay" id="session-modal-overlay" hidden>
+    <article class="session-modal" id="session-modal" role="dialog" aria-modal="true" aria-labelledby="session-modal-title" tabindex="-1">
+      <button class="modal-close" id="modal-close" type="button" aria-label="Chiudi dettaglio allenamento">×</button>
+      <div id="session-modal-content"></div>
+    </article>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite">Serie registrata</div>
+  <script src="app.js"></script>
+</body>
+</html>
