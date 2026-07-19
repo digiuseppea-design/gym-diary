@@ -81,6 +81,7 @@ async function migrateLegacySessions() {
         exerciseId: exercise.exerciseId,
         name: exercise.name,
         imageUrl: exercise.imageUrl ?? null,
+        technique: exercise.technique || null,
         sets: (exercise.sets || []).map(set => ({ weight: set.weight ?? null, reps: set.reps ?? null })),
         note: exercise.note || ''
       }));
@@ -178,6 +179,7 @@ async function saveExerciseToSession({ date, sessionName, exercise }) {
     exerciseId: exercise.exerciseId,
     name: exercise.name,
     imageUrl: exercise.imageUrl ?? null,
+    technique: exercise.technique || null,
     sets: exercise.sets.map(set => ({ weight: set.weight ?? null, reps: set.reps ?? null })),
     note: exercise.note?.trim() || ''
   });

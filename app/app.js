@@ -32,8 +32,10 @@ const state = {
   visibleSessionCount: 5,
   progressExercises: [],
   selectedProgressExercise: null,
-  selectedProgressReps: null,
+  selectedSeriesKey: null,
   progressPoints: [],
+  technique: 'normal',
+  restWeight: null,
   setRows: [],
   searchToken: 0
 };
@@ -89,6 +91,13 @@ function nullableNumber(value) {
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 }
+
+const TECHNIQUE_LABELS = { 'rest-pause': 'Rest-pause', stripping: 'Stripping' };
+function techniqueLabel(technique) { return TECHNIQUE_LABELS[technique] || ''; }
+function exposureTechnique(exposure) { return exposure?.technique || 'normal'; }
+function commaNumber(value) { return String(value).replace('.', ','); }
+function formatKg(value) { const rounded = Math.round(value * 10) / 10; return `${commaNumber(Number.isInteger(rounded) ? rounded : rounded.toFixed(1))} kg`; }
+function exposureTonnage(exposure) { return (exposure?.sets || []).reduce((sum, set) => sum + (set.weight > 0 && set.reps > 0 ? set.weight * set.reps : 0), 0); }
 
 function showToast(message) {
   const toast = $('#toast');
@@ -160,25 +169,49 @@ function updateCompleteButton(viewId = $('.view.is-active')?.id) {
   button.disabled = !visible;
 }
 
-function progressTracks(exercise) {
-  const tracks = new Map();
-  for (const exposure of exercise.exposures) {
-    const bestByReps = new Map();
+function exerciseSeries(exercise) {
+  const series = [];
+  const classic = exercise.exposures.filter(exposure => exposureTechnique(exposure) === 'normal');
+  const byDay = new Map();
+  for (const exposure of classic) {
+    if (!byDay.has(exposure.date)) byDay.set(exposure.date, { date: exposure.date, sessionName: exposure.sessionName, note: exposure.note || '', bestByReps: new Map() });
+    const day = byDay.get(exposure.date);
     for (const set of exposure.sets) {
       const reps = Number(set.reps), weight = Number(set.weight);
       if (!Number.isInteger(reps) || reps <= 0 || !Number.isFinite(weight) || weight <= 0) continue;
-      if (!bestByReps.has(reps) || weight > bestByReps.get(reps)) bestByReps.set(reps, weight);
+      if (!day.bestByReps.has(reps) || weight > day.bestByReps.get(reps)) day.bestByReps.set(reps, weight);
     }
-    bestByReps.forEach((weight, reps) => {
-      if (!tracks.has(reps)) tracks.set(reps, []);
-      tracks.get(reps).push({ date: exposure.date, weight, reps, note: exposure.note, sessionName: exposure.sessionName });
+    if (exposure.note && !day.note.includes(exposure.note)) day.note = [day.note, exposure.note].filter(Boolean).join(' · ');
+  }
+  const repTracks = new Map();
+  for (const day of [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date))) {
+    day.bestByReps.forEach((weight, reps) => {
+      if (!repTracks.has(reps)) repTracks.set(reps, []);
+      repTracks.get(reps).push({ date: day.date, value: weight, reps, note: day.note, sessionName: day.sessionName });
     });
   }
-  return [...tracks.entries()].map(([reps, points]) => ({ reps, points })).sort((a, b) => a.reps - b.reps);
+  [...repTracks.entries()].sort((a, b) => a[0] - b[0]).forEach(([reps, points]) => series.push({ key: `reps-${reps}`, kind: 'reps', reps, label: `${reps} rip.`, points }));
+  for (const technique of Object.keys(TECHNIQUE_LABELS)) {
+    const exposures = exercise.exposures.filter(exposure => exposureTechnique(exposure) === technique);
+    const dayMap = new Map();
+    for (const exposure of exposures) {
+      const tonnage = exposureTonnage(exposure);
+      if (!tonnage) continue;
+      const existing = dayMap.get(exposure.date);
+      if (!existing || tonnage > existing.value) dayMap.set(exposure.date, { date: exposure.date, value: tonnage, note: exposure.note || '', sessionName: exposure.sessionName });
+    }
+    const points = [...dayMap.values()].sort((a, b) => a.date.localeCompare(b.date));
+    if (points.length) series.push({ key: `tech-${technique}`, kind: 'technique', technique, label: techniqueLabel(technique), points });
+  }
+  return series;
 }
 
-function defaultProgressTrack(exercise) {
-  return [...progressTracks(exercise)].sort((a, b) => b.points.length - a.points.length || b.points.at(-1).date.localeCompare(a.points.at(-1).date) || a.reps - b.reps)[0] || null;
+function defaultSeries(exercise) {
+  return [...exerciseSeries(exercise)].sort((a, b) => b.points.length - a.points.length || b.points.at(-1).date.localeCompare(a.points.at(-1).date))[0] || null;
+}
+
+function lastExposureDate(exercise) {
+  return exercise.exposures.reduce((max, exposure) => exposure.date > max ? exposure.date : max, '');
 }
 
 async function loadProgressExercises() {
@@ -188,29 +221,31 @@ async function loadProgressExercises() {
     for (const exposure of session.exercises || []) {
       const id = exposure.exerciseId || `legacy-${String(exposure.name).toLocaleLowerCase('it')}`;
       if (!exercises.has(id)) exercises.set(id, { id, name: exposure.name, imageUrl: exposure.imageUrl || null, exposures: [] });
-      const exercise = exercises.get(id);
-      let day = exercise.exposures.find(item => item.date === session.date);
-      if (!day) {
-        day = { date: session.date, sessionName: session.name, sets: [], note: '' };
-        exercise.exposures.push(day);
-      }
-      day.sets.push(...(exposure.sets || []));
-      if (exposure.note && !day.note.includes(exposure.note)) day.note = [day.note, exposure.note].filter(Boolean).join(' · ');
+      exercises.get(id).exposures.push({ date: session.date, sessionName: session.name, technique: exposureTechnique(exposure), sets: exposure.sets || [], note: exposure.note || '' });
     }
   }
   state.progressExercises = [...exercises.values()]
-    .filter(exercise => progressTracks(exercise).length)
-    .sort((a, b) => b.exposures.at(-1).date.localeCompare(a.exposures.at(-1).date) || a.name.localeCompare(b.name, 'it'));
+    .filter(exercise => exerciseSeries(exercise).length)
+    .sort((a, b) => lastExposureDate(b).localeCompare(lastExposureDate(a)) || a.name.localeCompare(b.name, 'it'));
 }
 
 function progressDelta(points) {
   if (points.length < 2) return null;
-  return points.at(-1).weight - points.at(-2).weight;
+  return points.at(-1).value - points.at(-2).value;
 }
 
 function signedKg(value) {
   const rounded = Math.round(value * 10) / 10;
   return `${rounded > 0 ? '+' : ''}${String(rounded).replace('.', ',')} kg`;
+}
+
+function seriesLatestLabel(series, point = series.points.at(-1)) {
+  return series.kind === 'reps' ? `${point.value} kg × ${series.reps}` : formatKg(point.value);
+}
+
+function seriesSubLabel(series) {
+  const sessions = `${series.points.length} ${series.points.length === 1 ? 'sessione' : 'sessioni'}`;
+  return series.kind === 'reps' ? `${sessions} a ${series.reps} rip.` : `${sessions} · ${series.label}`;
 }
 
 function renderResultsList(query = '') {
@@ -223,10 +258,10 @@ function renderResultsList(query = '') {
   }
   if (!exercises.length) { list.innerHTML = '<p class="empty-list">Nessun esercizio corrisponde alla ricerca.</p>'; return; }
   list.innerHTML = exercises.map(exercise => {
-    const track = defaultProgressTrack(exercise), latest = track.points.at(-1), delta = progressDelta(track.points);
+    const series = defaultSeries(exercise), delta = progressDelta(series.points);
     const trend = delta === null ? 'Primo dato confrontabile' : delta === 0 ? 'Stabile rispetto al precedente' : `${signedKg(delta)} rispetto al precedente`;
     const trendClass = delta === null || delta === 0 ? 'neutral' : delta > 0 ? 'up' : 'down';
-    return `<button class="result-exercise-card" type="button" data-open-result="${escapeHtml(exercise.id)}"><span class="result-exercise-mark">${escapeHtml(exercise.name.charAt(0).toLocaleUpperCase('it'))}</span><span class="result-exercise-copy"><strong>${escapeHtml(exercise.name)}</strong><small>${track.points.length} ${track.points.length === 1 ? 'sessione' : 'sessioni'} a ${track.reps} rip.</small></span><span class="result-exercise-value"><strong>${latest.weight} kg × ${track.reps}</strong><small class="${trendClass}">${escapeHtml(trend)}</small></span><span class="result-exercise-chevron" aria-hidden="true">→</span></button>`;
+    return `<button class="result-exercise-card" type="button" data-open-result="${escapeHtml(exercise.id)}"><span class="result-exercise-mark">${escapeHtml(exercise.name.charAt(0).toLocaleUpperCase('it'))}</span><span class="result-exercise-copy"><strong>${escapeHtml(exercise.name)}</strong><small>${escapeHtml(seriesSubLabel(series))}</small></span><span class="result-exercise-value"><strong>${escapeHtml(seriesLatestLabel(series))}</strong><small class="${trendClass}">${escapeHtml(trend)}</small></span><span class="result-exercise-chevron" aria-hidden="true">→</span></button>`;
   }).join('');
 }
 
@@ -236,43 +271,54 @@ async function renderResults(exerciseId = null) {
   $('#result-detail').hidden = !exerciseId;
   if (!exerciseId) {
     state.selectedProgressExercise = null;
-    state.selectedProgressReps = null;
+    state.selectedSeriesKey = null;
     renderResultsList($('#results-search').value);
     return;
   }
   const exercise = state.progressExercises.find(item => item.id === exerciseId);
   if (!exercise) { navigateResults(); return; }
   state.selectedProgressExercise = exercise;
-  const tracks = progressTracks(exercise);
-  if (!tracks.some(track => track.reps === state.selectedProgressReps)) state.selectedProgressReps = defaultProgressTrack(exercise).reps;
+  const series = exerciseSeries(exercise);
+  if (!series.some(item => item.key === state.selectedSeriesKey)) state.selectedSeriesKey = defaultSeries(exercise).key;
   $('#result-exercise-name').textContent = exercise.name;
-  $('#result-rep-filters').innerHTML = tracks.map(track => `<button type="button" data-progress-reps="${track.reps}" class="${track.reps === state.selectedProgressReps ? 'is-active' : ''}" aria-pressed="${track.reps === state.selectedProgressReps}">${track.reps} rip.</button>`).join('');
+  $('#result-rep-filters').innerHTML = series.map(item => `<button type="button" data-series-key="${escapeHtml(item.key)}" class="${item.key === state.selectedSeriesKey ? 'is-active' : ''}${item.kind === 'technique' ? ' is-technique' : ''}" aria-pressed="${item.key === state.selectedSeriesKey}">${escapeHtml(item.label)}</button>`).join('');
   renderProgressTrack();
 }
 
 function renderProgressTrack() {
-  const track = progressTracks(state.selectedProgressExercise).find(item => item.reps === state.selectedProgressReps);
-  const points = track?.points || [];
-  state.progressPoints = points;
+  const series = exerciseSeries(state.selectedProgressExercise).find(item => item.key === state.selectedSeriesKey);
+  const points = series?.points || [];
+  state.progressPoints = points.map(point => ({ ...point, kind: series?.kind, reps: series?.reps }));
   const latest = points.at(-1), delta = progressDelta(points);
-  $('#result-latest').innerHTML = latest ? `<span>Ultimo risultato</span><strong>${latest.weight} kg × ${track.reps}</strong><small>${delta === null ? 'Primo dato' : delta === 0 ? 'Stabile rispetto alla volta precedente' : `${signedKg(delta)} rispetto alla volta precedente`}</small>` : '';
+  const subject = $('#result-chart-subject');
+  if (subject) subject.textContent = series ? (series.kind === 'reps' ? 'Stesse ripetizioni' : `Tonnellaggio · ${series.label}`) : '';
+  $('#result-latest').innerHTML = latest ? `<span>Ultimo risultato</span><strong>${escapeHtml(seriesLatestLabel(series, latest))}</strong><small>${delta === null ? 'Primo dato' : delta === 0 ? 'Stabile rispetto alla volta precedente' : `${signedKg(delta)} rispetto alla volta precedente`}</small>` : '';
   const chart = $('#result-chart');
   if (!points.length) { chart.innerHTML = '<p class="chart-empty">Nessun dato disponibile.</p>'; return; }
-  const weights = points.map(point => point.weight), min = Math.min(...weights), max = Math.max(...weights), range = max - min || 1;
-  const coordinates = points.map((point, index) => ({ x: points.length === 1 ? 50 : 7 + (index / (points.length - 1)) * 86, y: points.length === 1 ? 50 : 80 - ((point.weight - min) / range) * 60 }));
+  const values = points.map(point => point.value), min = Math.min(...values), max = Math.max(...values), range = max - min || 1;
+  const coordinates = points.map((point, index) => ({ x: points.length === 1 ? 50 : 7 + (index / (points.length - 1)) * 86, y: points.length === 1 ? 50 : 80 - ((point.value - min) / range) * 60 }));
   const line = points.length > 1 ? `<polyline points="${coordinates.map(point => `${point.x},${point.y}`).join(' ')}"/>` : '';
-  const pointButtons = coordinates.map((point, index) => `<button class="progress-point" type="button" data-progress-index="${index}" style="left:${point.x}%;top:${point.y}%" aria-label="${points[index].weight} kg per ${track.reps} ripetizioni, ${escapeHtml(compactDate.format(dateFromKey(points[index].date)))}"><span></span></button>`).join('');
-  chart.innerHTML = `<div class="result-chart-axis" aria-hidden="true"><span>${max} kg</span><span>${min} kg</span></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${line}</svg>${pointButtons}<div class="progress-point-popover" id="progress-point-popover" hidden></div>`;
-  $('#result-chart-caption').textContent = points.length < 2 ? `Serve un’altra sessione da ${track.reps} ripetizioni per vedere l’andamento.` : `Ogni punto è il carico più alto eseguito a ${track.reps} ripetizioni in quella sessione.`;
+  const axisLabels = series.kind === 'reps' ? `<span>${max} kg</span><span>${min} kg</span>` : `<span>${escapeHtml(formatKg(max))}</span><span>${escapeHtml(formatKg(min))}</span>`;
+  const pointAria = point => series.kind === 'reps' ? `${point.value} kg per ${series.reps} ripetizioni` : `${formatKg(point.value)} di tonnellaggio`;
+  const pointButtons = coordinates.map((point, index) => `<button class="progress-point" type="button" data-progress-index="${index}" style="left:${point.x}%;top:${point.y}%" aria-label="${escapeHtml(pointAria(points[index]))}, ${escapeHtml(compactDate.format(dateFromKey(points[index].date)))}"><span></span></button>`).join('');
+  chart.innerHTML = `<div class="result-chart-axis" aria-hidden="true">${axisLabels}</div><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${line}</svg>${pointButtons}<div class="progress-point-popover" id="progress-point-popover" hidden></div>`;
+  const caption = series.kind === 'reps'
+    ? (points.length < 2 ? `Serve un’altra sessione da ${series.reps} ripetizioni per vedere l’andamento.` : `Ogni punto è il carico più alto eseguito a ${series.reps} ripetizioni in quella sessione.`)
+    : (points.length < 2 ? `Serve un’altra sessione in ${series.label} per vedere l’andamento.` : `Ogni punto è il tonnellaggio totale della tecnica ${series.label} in quella sessione.`);
+  $('#result-chart-caption').textContent = caption;
   $('#result-history-count').textContent = `${points.length} ${points.length === 1 ? 'sessione' : 'sessioni'}`;
-  $('#result-history').innerHTML = [...points].reverse().map(point => `<article><time datetime="${point.date}">${escapeHtml(compactDate.format(dateFromKey(point.date)))}</time><div><strong>${point.weight} kg × ${point.reps}</strong><span>${escapeHtml(point.sessionName || 'Allenamento')}</span>${point.note ? `<p>${escapeHtml(point.note)}</p>` : ''}</div></article>`).join('');
+  $('#result-history').innerHTML = [...points].reverse().map(point => {
+    const valueLabel = series.kind === 'reps' ? `${point.value} kg × ${series.reps}` : `${formatKg(point.value)} di tonnellaggio`;
+    return `<article><time datetime="${point.date}">${escapeHtml(compactDate.format(dateFromKey(point.date)))}</time><div><strong>${escapeHtml(valueLabel)}</strong><span>${escapeHtml(point.sessionName || 'Allenamento')}</span>${point.note ? `<p>${escapeHtml(point.note)}</p>` : ''}</div></article>`;
+  }).join('');
 }
 
 function showProgressPoint(button) {
   const point = state.progressPoints[Number(button.dataset.progressIndex)], popover = $('#progress-point-popover');
   if (!point || !popover) return;
   $$('.progress-point').forEach(item => item.classList.toggle('is-selected', item === button));
-  popover.innerHTML = `<strong>${point.weight} kg × ${point.reps}</strong><span>${escapeHtml(fullDate.format(dateFromKey(point.date)))}</span>${point.note ? `<small>${escapeHtml(point.note)}</small>` : ''}`;
+  const valueLabel = point.kind === 'reps' ? `${point.value} kg × ${point.reps}` : `${formatKg(point.value)} di tonnellaggio`;
+  popover.innerHTML = `<strong>${escapeHtml(valueLabel)}</strong><span>${escapeHtml(fullDate.format(dateFromKey(point.date)))}</span>${point.note ? `<small>${escapeHtml(point.note)}</small>` : ''}`;
   const y = Number.parseFloat(button.style.top);
   popover.style.top = `${y < 45 ? Math.min(88, y + 12) : Math.max(8, y - 8)}%`;
   popover.classList.toggle('is-above', y >= 45);
@@ -541,6 +587,9 @@ function continueToExerciseForm() {
 function resetExerciseForm() {
   state.selectedExercise = null;
   state.lastExposure = null;
+  state.exerciseHistory = [];
+  state.technique = 'normal';
+  state.restWeight = null;
   state.setRows = [{ id: createId(), weight: null, reps: null }];
   $('#exercise-search').value = '';
   $('#exercise-search').setAttribute('aria-expanded', 'false');
@@ -549,12 +598,84 @@ function resetExerciseForm() {
   $('#selected-exercise').hidden = true;
   $('#last-exposure').hidden = true;
   $('#exercise-note').value = '';
-  renderSetRows();
+  updateTechniquePicker();
+  renderSetsEditor();
 }
 
-function renderSetRows() {
-  $('#set-rows').innerHTML = state.setRows.map((set, index) => `<div class="set-row editable" data-set-index="${index}"><strong>${index + 1}</strong><label><span class="sr-only">Ripetizioni serie ${index + 1}</span><input data-reps inputmode="numeric" value="${set.reps ?? ''}" placeholder="—"></label><label class="weight-field"><span class="sr-only">Peso serie ${index + 1}</span><input data-weight inputmode="decimal" value="${set.weight ?? ''}" placeholder="—"><small data-rep-best></small></label><button type="button" data-remove-set aria-label="Rimuovi serie ${index + 1}">×</button></div>`).join('');
-  $$('#set-rows [data-set-index]').forEach(updateRowRecord);
+function updateTechniquePicker() {
+  $$('#technique-picker [data-technique]').forEach(button => {
+    const active = button.dataset.technique === state.technique;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function selectTechnique(technique) {
+  if (state.technique === technique) return;
+  readSetRows();
+  state.technique = technique;
+  state.setRows = state.setRows.length ? state.setRows.map(row => ({ id: row.id || createId(), weight: row.weight ?? null, reps: row.reps ?? null })) : [{ id: createId(), weight: null, reps: null }];
+  updateTechniquePicker();
+  renderSetsEditor();
+}
+
+function classicRowHtml(set, index) {
+  return `<div class="set-row editable" data-set-index="${index}"><strong>${index + 1}</strong><label><span class="sr-only">Ripetizioni serie ${index + 1}</span><input data-reps inputmode="numeric" value="${set.reps ?? ''}" placeholder="—"></label><label class="weight-field"><span class="sr-only">Peso serie ${index + 1}</span><input data-weight inputmode="decimal" value="${set.weight ?? ''}" placeholder="—"><small data-rep-best></small></label><button type="button" data-remove-set aria-label="Rimuovi serie ${index + 1}">×</button></div>`;
+}
+
+function restPauseRowHtml(set, index) {
+  return `<div class="set-row set-row-rp editable" data-set-index="${index}"><strong>${index + 1}</strong><label><span class="sr-only">Ripetizioni mini-serie ${index + 1}</span><input data-reps inputmode="numeric" value="${set.reps ?? ''}" placeholder="—"></label><button type="button" data-remove-set aria-label="Rimuovi mini-serie ${index + 1}">×</button></div>`;
+}
+
+function strippingRowHtml(set, index) {
+  return `<div class="set-row editable" data-set-index="${index}"><strong>${index + 1}</strong><label><span class="sr-only">Ripetizioni gradino ${index + 1}</span><input data-reps inputmode="numeric" value="${set.reps ?? ''}" placeholder="—"></label><label class="weight-field"><span class="sr-only">Carico gradino ${index + 1}</span><input data-weight inputmode="decimal" value="${set.weight ?? ''}" placeholder="—"></label><button type="button" data-remove-set aria-label="Rimuovi gradino ${index + 1}">×</button></div>`;
+}
+
+function renderSetsEditor() {
+  const editor = $('#sets-editor');
+  if (state.technique === 'rest-pause') {
+    editor.innerHTML = `<div class="technique-lead"><span>Rest-pause</span><p>Stesso carico, mini-serie separate da un breve recupero.</p></div>
+      <label class="rp-weight-field">Carico<div class="unit-input"><input id="rest-weight" inputmode="decimal" value="${state.restWeight ?? ''}" placeholder="Es. 60"><span>kg</span></div></label>
+      <div class="set-row set-header set-header-rp"><span>Mini-serie</span><span>Rip.</span><span></span></div>
+      <div id="set-rows">${state.setRows.map(restPauseRowHtml).join('')}</div>
+      <button class="add-set" id="add-set" type="button">＋ Aggiungi mini-serie</button>
+      <div class="tonnage-preview" id="tonnage-preview"></div>`;
+  } else if (state.technique === 'stripping') {
+    editor.innerHTML = `<div class="technique-lead"><span>Stripping</span><p>Cali di carico in successione, senza recupero tra i gradini.</p></div>
+      <div class="set-row set-header"><span>Gradino</span><span>Rip.</span><span>Kg</span><span></span></div>
+      <div id="set-rows">${state.setRows.map(strippingRowHtml).join('')}</div>
+      <button class="add-set" id="add-set" type="button">＋ Aggiungi gradino</button>
+      <div class="tonnage-preview" id="tonnage-preview"></div>`;
+  } else {
+    editor.innerHTML = `<div class="set-row set-header"><span>Serie</span><span>Rip.</span><span>Kg</span><span></span></div>
+      <div id="set-rows">${state.setRows.map(classicRowHtml).join('')}</div>
+      <button class="add-set" id="add-set" type="button">＋ Aggiungi serie</button>`;
+  }
+  if (state.technique === 'normal') $$('#set-rows [data-set-index]').forEach(updateRowRecord);
+  else updateTonnagePreview();
+}
+
+function techniqueBestTonnage() {
+  return state.exerciseHistory
+    .filter(item => exposureTechnique(item.exposure) === state.technique)
+    .map(item => exposureTonnage(item.exposure))
+    .reduce((max, tonnage) => Math.max(max, tonnage), 0) || null;
+}
+
+function updateTonnagePreview() {
+  const preview = $('#tonnage-preview');
+  if (!preview) return;
+  const sharedWeight = state.technique === 'rest-pause' ? nullableNumber($('#rest-weight')?.value) : null;
+  let tonnage = 0, valid = 0;
+  $$('#set-rows [data-set-index]').forEach(row => {
+    const reps = nullableNumber(row.querySelector('[data-reps]')?.value);
+    const weight = state.technique === 'rest-pause' ? sharedWeight : nullableNumber(row.querySelector('[data-weight]')?.value);
+    if (weight > 0 && reps > 0) { tonnage += weight * reps; valid += 1; }
+  });
+  if (!valid) { preview.innerHTML = '<span>Tonnellaggio totale</span><strong>—</strong>'; return; }
+  const best = techniqueBestTonnage();
+  const bestHtml = best ? `<small>${tonnage > best ? `🏆 Nuovo record (prec. ${formatKg(best)})` : `Record: ${formatKg(best)}`}</small>` : '';
+  preview.innerHTML = `<span>Tonnellaggio totale</span><strong>${formatKg(tonnage)}</strong>${bestHtml}`;
 }
 
 function personalBests(history = state.exerciseHistory) {
@@ -562,12 +683,14 @@ function personalBests(history = state.exerciseHistory) {
   history.flatMap(item => item.exposure.sets || []).forEach(set => { if (Number.isInteger(set.reps) && set.reps >= 3 && set.reps <= 12 && set.weight > (bests[set.reps]?.weight || 0)) bests[set.reps] = { weight: set.weight, date: history.find(item => item.exposure.sets?.includes(set))?.session.date }; });
   return bests;
 }
-function updateRowRecord(row) { const reps = nullableNumber(row.querySelector('[data-reps]').value), best = personalBests()[reps], label = row.querySelector('[data-rep-best]'); label.textContent = best ? `🏆 ${best.weight} kg` : ''; }
+function updateRowRecord(row) { const label = row.querySelector('[data-rep-best]'); if (!label) return; const reps = nullableNumber(row.querySelector('[data-reps]').value), best = personalBests()[reps]; label.textContent = best ? `🏆 ${best.weight} kg` : ''; }
 
 function readSetRows() {
+  if (state.technique === 'rest-pause') state.restWeight = nullableNumber($('#rest-weight')?.value);
   state.setRows = $$('#set-rows [data-set-index]').map(row => {
     const previous = state.setRows[Number(row.dataset.setIndex)];
-    return { id: previous?.id || createId(), weight: nullableNumber(row.querySelector('[data-weight]').value), reps: nullableNumber(row.querySelector('[data-reps]').value) };
+    const weightInput = row.querySelector('[data-weight]');
+    return { id: previous?.id || createId(), weight: weightInput ? nullableNumber(weightInput.value) : (previous?.weight ?? null), reps: nullableNumber(row.querySelector('[data-reps]').value) };
   });
 }
 
@@ -604,7 +727,7 @@ async function chooseExercise(exercise) {
   $('#selected-exercise').innerHTML = `${image}<div><strong>${escapeHtml(exercise.name)}</strong><span>${exercise.imageUrl ? 'Dal catalogo esercizi' : 'Esercizio creato da te'}</span></div>`;
   $('#selected-exercise').hidden = false;
   state.exerciseHistory = await getExerciseHistory(exercise.id);
-  await renderLastExposure(exercise.id); renderSetRows();
+  await renderLastExposure(exercise.id); renderSetsEditor();
 }
 
 async function renderLastExposure(exerciseId) {
@@ -661,20 +784,35 @@ async function saveCurrentExercise() {
   const sessionName = $('#session-name').value.trim();
   if (!state.session && !sessionName) throw new Error('Dai un nome alla sessione prima di salvare il primo esercizio.');
   readSetRows();
+  const technique = state.technique;
+  const builtSets = technique === 'rest-pause'
+    ? state.setRows.map(row => ({ weight: state.restWeight, reps: row.reps }))
+    : state.setRows.map(row => ({ weight: row.weight, reps: row.reps }));
   const previousBests = personalBests();
-  const savedSets = state.setRows.map(set => ({ ...set }));
+  const previousBestTonnage = techniqueBestTonnage() || 0;
   const savedExerciseName = state.selectedExercise.name;
   state.session = await saveExerciseToSession({
     date: state.selectedDate,
     sessionName: state.session?.name || sessionName,
-    exercise: { exerciseId: state.selectedExercise.id, name: state.selectedExercise.name, imageUrl: state.selectedExercise.imageUrl, sets: state.setRows.map(set => ({ weight: set.weight, reps: set.reps })), note: $('#exercise-note').value }
+    exercise: { exerciseId: state.selectedExercise.id, name: state.selectedExercise.name, imageUrl: state.selectedExercise.imageUrl, technique: technique === 'normal' ? null : technique, sets: builtSets, note: $('#exercise-note').value }
   });
   renderDayHeader();
   resetExerciseForm();
   await renderLoggedExercises();
-  const newRecords = savedSets.filter(set => Number.isInteger(set.reps) && set.reps >= 3 && set.reps <= 12 && set.weight > (previousBests[set.reps]?.weight || 0));
-  if (newRecords.length) showPrCelebration(savedExerciseName, newRecords, previousBests);
+  if (technique === 'normal') {
+    const newRecords = builtSets.filter(set => Number.isInteger(set.reps) && set.reps >= 3 && set.reps <= 12 && set.weight > (previousBests[set.reps]?.weight || 0));
+    if (newRecords.length) showPrCelebration(savedExerciseName, newRecords, previousBests);
+  } else {
+    const tonnage = builtSets.reduce((sum, set) => sum + (set.weight > 0 && set.reps > 0 ? set.weight * set.reps : 0), 0);
+    if (tonnage > 0 && tonnage > previousBestTonnage) showTonnagePr(savedExerciseName, technique, tonnage, previousBestTonnage);
+  }
   showToast('Esercizio aggiunto al diario');
+}
+
+function showTonnagePr(exerciseName, technique, tonnage, previousBest) {
+  $('#pr-title').textContent = exerciseName;
+  $('#pr-results').innerHTML = `<p><strong>${escapeHtml(formatKg(tonnage))} di tonnellaggio</strong><small>${previousBest ? `Precedente ${escapeHtml(techniqueLabel(technique))}: ${escapeHtml(formatKg(previousBest))}` : `Primo record in ${escapeHtml(techniqueLabel(technique))}`}</small></p>`;
+  $('#pr-celebration').hidden = false;
 }
 
 function openSessionCompleteModal() {
@@ -688,6 +826,35 @@ function closeSessionCompleteModal() { $('#session-complete-modal').hidden = tru
 
 function showPrCelebration(exerciseName, records, previous) { const best = Object.values(records.reduce((map, set) => { if (!map[set.reps] || set.weight > map[set.reps].weight) map[set.reps] = set; return map; }, {})); $('#pr-title').textContent = exerciseName; $('#pr-results').innerHTML = best.map(set => `<p><strong>${set.weight} kg × ${set.reps}</strong>${previous[set.reps] ? `<small>Precedente: ${previous[set.reps].weight} kg</small>` : '<small>Primo record su queste ripetizioni</small>'}</p>`).join(''); $('#pr-celebration').hidden = false; }
 
+function loggedSetsHtml(exercise) {
+  const technique = exposureTechnique(exercise);
+  const sets = exercise.sets || [];
+  if (technique === 'rest-pause') {
+    const weight = sets.find(set => set.weight !== null)?.weight ?? null;
+    const reps = sets.map(set => set.reps).filter(rep => rep !== null);
+    const label = weight !== null && reps.length ? `${commaNumber(weight)} kg × ${reps.join('+')}` : 'Dati non sufficienti';
+    const tonnage = exposureTonnage(exercise);
+    return `<span class="logged-set logged-set-technique">${escapeHtml(label)}</span>${tonnage ? `<span class="logged-set logged-tonnage">${escapeHtml(formatKg(tonnage))} tot.</span>` : ''}`;
+  }
+  if (technique === 'stripping') {
+    const chain = sets.filter(set => set.weight !== null || set.reps !== null).map(set => `${set.weight !== null ? commaNumber(set.weight) : '—'}×${set.reps ?? '—'}`).join(' → ');
+    const tonnage = exposureTonnage(exercise);
+    return `<span class="logged-set logged-set-technique">${escapeHtml(chain || 'Dati non sufficienti')}</span>${tonnage ? `<span class="logged-set logged-tonnage">${escapeHtml(formatKg(tonnage))} tot.</span>` : ''}`;
+  }
+  return sets.map((set, index) => `<span class="logged-set">${index + 1}. ${escapeHtml(formatSet(set))}</span>`).join('');
+}
+
+function compareTechnique(current, previous) {
+  const currentTonnage = exposureTonnage(current);
+  if (!currentTonnage) return { result: 'insufficient', text: 'Servono carico e ripetizioni per calcolare il tonnellaggio.' };
+  if (!previous || !exposureTonnage(previous)) return { result: 'first', text: `Prima volta in ${techniqueLabel(exposureTechnique(current))}: tonnellaggio ${formatKg(currentTonnage)}.` };
+  const previousTonnage = exposureTonnage(previous);
+  const delta = currentTonnage - previousTonnage;
+  if (delta > 0) return { result: 'better', text: `Meglio dell’ultima volta (${formatKg(currentTonnage)} vs ${formatKg(previousTonnage)} di tonnellaggio).` };
+  if (delta < 0) return { result: 'worse', text: `Sotto l’ultima volta (${formatKg(currentTonnage)} vs ${formatKg(previousTonnage)}).` };
+  return { result: 'stable', text: `Stabile rispetto all’ultima volta (${formatKg(currentTonnage)} di tonnellaggio).` };
+}
+
 async function renderLoggedExercises() {
   const container = $('#logged-exercises');
   const exercises = state.session?.exercises || [];
@@ -698,10 +865,15 @@ async function renderLoggedExercises() {
   }
   const cards = [];
   for (const exercise of exercises) {
-    const previous = await getLastExposure(exercise.exerciseId, state.selectedDate);
-    const comparison = previous ? compareExposures(exercise.sets, previous.exposure.sets) : { result: 'first', text: 'Prima volta: niente da confrontare.' };
+    const technique = exposureTechnique(exercise);
+    const history = await getExerciseHistory(exercise.exerciseId, state.selectedDate);
+    const previous = history.filter(item => exposureTechnique(item.exposure) === technique).sort((a, b) => b.session.date.localeCompare(a.session.date))[0] || null;
+    const comparison = technique === 'normal'
+      ? (previous ? compareExposures(exercise.sets, previous.exposure.sets) : { result: 'first', text: 'Prima volta: niente da confrontare.' })
+      : compareTechnique(exercise, previous?.exposure || null);
     const image = exercise.imageUrl ? `<img class="logged-thumb" src="${escapeHtml(exercise.imageUrl)}" alt="" loading="lazy">` : '<span class="logged-thumb suggestion-placeholder">—</span>';
-    cards.push(`<article class="logged-exercise">${image}<div class="logged-main"><h3>${escapeHtml(exercise.name)}</h3><div class="logged-sets">${exercise.sets.map((set, index) => `<span class="logged-set">${index + 1}. ${escapeHtml(formatSet(set))}</span>`).join('')}</div>${exercise.note ? `<p class="logged-note">${escapeHtml(exercise.note)}</p>` : ''}<p class="comparison ${comparison.result}">${escapeHtml(comparison.text)}</p></div></article>`);
+    const badge = technique !== 'normal' ? `<span class="technique-badge technique-${technique}">${escapeHtml(techniqueLabel(technique))}</span>` : '';
+    cards.push(`<article class="logged-exercise">${image}<div class="logged-main"><h3>${escapeHtml(exercise.name)}${badge}</h3><div class="logged-sets">${loggedSetsHtml(exercise)}</div>${exercise.note ? `<p class="logged-note">${escapeHtml(exercise.note)}</p>` : ''}<p class="comparison ${comparison.result}">${escapeHtml(comparison.text)}</p></div></article>`);
   }
   container.innerHTML = cards.join('');
 }
@@ -730,13 +902,15 @@ document.addEventListener('click', async event => {
     if (profileLink) { event.preventDefault(); navigateProfile(); return; }
     const resultCard = event.target.closest('[data-open-result]');
     if (resultCard) { navigateResults(resultCard.dataset.openResult); return; }
-    const repButton = event.target.closest('[data-progress-reps]');
-    if (repButton) {
-      state.selectedProgressReps = Number(repButton.dataset.progressReps);
-      $$('#result-rep-filters [data-progress-reps]').forEach(button => { const active = button === repButton; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); });
+    const seriesButton = event.target.closest('[data-series-key]');
+    if (seriesButton) {
+      state.selectedSeriesKey = seriesButton.dataset.seriesKey;
+      $$('#result-rep-filters [data-series-key]').forEach(button => { const active = button === seriesButton; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); });
       renderProgressTrack();
       return;
     }
+    const techniqueButton = event.target.closest('#technique-picker [data-technique]');
+    if (techniqueButton) { selectTechnique(techniqueButton.dataset.technique); return; }
     const progressPoint = event.target.closest('[data-progress-index]');
     if (progressPoint) { showProgressPoint(progressPoint); return; }
     const dateButton = event.target.closest('[data-open-date]');
@@ -756,9 +930,9 @@ document.addEventListener('click', async event => {
     if (addNew) { await chooseExercise(await ensureExercise(addNew.dataset.addNew)); return; }
     if (event.target.closest('#clear-exercise')) { resetExerciseForm(); $('#exercise-search').focus(); return; }
     if (event.target.closest('#continue-session')) { continueToExerciseForm(); return; }
-    if (event.target.closest('#add-set')) { readSetRows(); state.setRows.push({ id: createId(), weight: null, reps: null }); renderSetRows(); return; }
+    if (event.target.closest('#add-set')) { readSetRows(); state.setRows.push({ id: createId(), weight: null, reps: null }); renderSetsEditor(); return; }
     const removeSet = event.target.closest('[data-remove-set]');
-    if (removeSet) { readSetRows(); if (state.setRows.length > 1) state.setRows.splice(Number(removeSet.closest('[data-set-index]').dataset.setIndex), 1); else state.setRows[0] = { id: createId(), weight: null, reps: null }; renderSetRows(); return; }
+    if (removeSet) { readSetRows(); if (state.setRows.length > 1) state.setRows.splice(Number(removeSet.closest('[data-set-index]').dataset.setIndex), 1); else state.setRows[0] = { id: createId(), weight: null, reps: null }; renderSetsEditor(); return; }
     if (event.target.closest('#save-exercise')) { await saveCurrentExercise(); return; }
     const periodButton = event.target.closest('[data-period-control] [data-period]');
     if (periodButton) {
@@ -784,7 +958,10 @@ $('#calendar-grid').addEventListener('focusout', hideCalendarTooltip);
 
 $('#exercise-search').addEventListener('input', event => updateExerciseSuggestions(event.target.value).catch(showError));
 $('#results-search').addEventListener('input', event => renderResultsList(event.target.value));
-$('#set-rows').addEventListener('input', event => { const row = event.target.closest('[data-set-index]'); if (row && event.target.matches('[data-reps]')) updateRowRecord(row); });
+$('#sets-editor').addEventListener('input', event => {
+  if (state.technique === 'normal') { const row = event.target.closest('[data-set-index]'); if (row && event.target.matches('[data-reps]')) updateRowRecord(row); }
+  else updateTonnagePreview();
+});
 $('#close-pr').addEventListener('click', () => { $('#pr-celebration').hidden = true; });
 $('#load-demo-data')?.addEventListener('click', async () => {
   try {

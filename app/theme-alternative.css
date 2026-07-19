@@ -180,3 +180,18 @@ html[data-theme="alternative"] .onboarding-max-list>span{background:#242a2d;colo
 html[data-theme="alternative"] .tour-feeling i{border-color:var(--line);background:#15191b;color:var(--ink)}
 html[data-theme="alternative"] .tour-feeling i.selected{border-color:var(--terracotta);background:var(--terracotta);color:#fff}
 html[data-theme="alternative"] .tour-reps mark{background:#203029;color:var(--sage)}
+
+/* Metodi di allenamento (tecniche) nel tema scuro */
+html[data-theme="alternative"] .technique-picker-options button{border-color:var(--line);background:#202629;color:#aab1b5}
+html[data-theme="alternative"] .technique-picker-options button:hover{border-color:#596267;color:var(--ink)}
+html[data-theme="alternative"] .technique-picker-options button.is-active{border-color:var(--terracotta);background:var(--terracotta);color:#fff}
+html[data-theme="alternative"] .sets-editor .set-row{border-bottom-color:var(--line)}
+html[data-theme="alternative"] .technique-lead{border-left-color:var(--sage);background:#1a2320}
+html[data-theme="alternative"] .technique-lead span{color:var(--ink)}
+html[data-theme="alternative"] .tonnage-preview{border-color:var(--line);background:#1b1f21}
+html[data-theme="alternative"] .tonnage-preview strong{color:#f4f5f6;font-family:"Oswald",sans-serif;font-variant-numeric:tabular-nums}
+html[data-theme="alternative"] .tonnage-preview small{color:#e4b765}
+html[data-theme="alternative"] .technique-badge.technique-rest-pause{background:#22303f;color:#8fb2dd}
+html[data-theme="alternative"] .technique-badge.technique-stripping{background:#3a222b;color:#dd94a8}
+html[data-theme="alternative"] .logged-set.logged-set-technique{background:#2a3033;color:var(--ink)}
+html[data-theme="alternative"] .logged-set.logged-tonnage{background:#20291f;color:var(--sage)}

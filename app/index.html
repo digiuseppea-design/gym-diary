@@ -55,7 +55,8 @@
         <div class="exercise-search-wrap"><label for="exercise-search">Esercizio</label><div class="exercise-search-box"><input id="exercise-search" autocomplete="off" placeholder="Cerca o scrivi un esercizio" aria-autocomplete="list" aria-controls="exercise-suggestions" aria-expanded="false"><button id="clear-exercise" type="button" aria-label="Cancella esercizio">×</button></div><div class="exercise-suggestions" id="exercise-suggestions" role="listbox" hidden></div></div>
         <div class="selected-exercise" id="selected-exercise" hidden></div>
         <div class="last-exposure" id="last-exposure" hidden></div>
-        <div class="sets-editor"><div class="set-row set-header"><span>Serie</span><span>Rip.</span><span>Kg</span><span></span></div><div id="set-rows"></div><button class="add-set" id="add-set" type="button">＋ Aggiungi serie</button></div>
+        <div class="technique-picker" id="technique-picker" role="group" aria-label="Metodo di esecuzione"><span class="technique-picker-label">Metodo</span><div class="technique-picker-options"><button type="button" data-technique="normal" class="is-active" aria-pressed="true">Classico</button><button type="button" data-technique="rest-pause" aria-pressed="false">Rest-pause</button><button type="button" data-technique="stripping" aria-pressed="false">Stripping</button></div></div>
+        <div class="sets-editor" id="sets-editor"></div>
         <label class="exercise-note" for="exercise-note">Nota per questo esercizio<textarea id="exercise-note" rows="3" placeholder="Opzionale — sensazioni, variante, appunti..."></textarea></label>
         <button class="primary-button save-exercise" id="save-exercise" type="button">Salva esercizio</button>
       </section>
@@ -65,7 +66,7 @@
 
     <section class="view results-view" id="risultati" aria-labelledby="results-title">
       <div id="results-list-panel">
-        <span class="eyebrow">I tuoi progressi</span><h1 id="results-title">Risultati.</h1><p class="lead">Confrontiamo soltanto carichi eseguiti con le stesse ripetizioni.</p>
+        <span class="eyebrow">I tuoi progressi</span><h1 id="results-title">Risultati.</h1><p class="lead">Confrontiamo carichi eseguiti con le stesse ripetizioni e tecniche a parità di tonnellaggio: mai mele con pere.</p>
         <label class="results-search" for="results-search">Cerca un esercizio<input id="results-search" type="search" autocomplete="off" placeholder="Es. Lat machine"></label>
         <div class="results-exercise-list" id="results-exercise-list"></div>
       </div>
@@ -73,7 +74,7 @@
         <a class="back-link calendar-back" href="#risultati" data-route="results">← Tutti gli esercizi</a>
         <div class="result-detail-heading"><div><span class="eyebrow">Andamento dei carichi</span><h1 id="result-exercise-name"></h1></div><div class="result-latest" id="result-latest"></div></div>
         <section class="result-chart-card">
-          <div class="result-chart-head"><div><span class="soft-label">Confronto omogeneo</span><h2>Stesse ripetizioni</h2></div><div class="result-rep-filters" id="result-rep-filters" aria-label="Scegli le ripetizioni da confrontare"></div></div>
+          <div class="result-chart-head"><div><span class="soft-label">Confronto omogeneo</span><h2 id="result-chart-subject">Stesse ripetizioni</h2></div><div class="result-rep-filters" id="result-rep-filters" aria-label="Scegli cosa confrontare"></div></div>
           <div class="result-chart" id="result-chart"></div>
           <p class="result-chart-caption" id="result-chart-caption"></p>
         </section>
