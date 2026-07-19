@@ -182,9 +182,12 @@ html[data-theme="alternative"] .tour-feeling i.selected{border-color:var(--terra
 html[data-theme="alternative"] .tour-reps mark{background:#203029;color:var(--sage)}
 
 /* Metodi di allenamento (tecniche) nel tema scuro */
-html[data-theme="alternative"] .technique-picker-options button{border-color:var(--line);background:#202629;color:#aab1b5}
-html[data-theme="alternative"] .technique-picker-options button:hover{border-color:#596267;color:var(--ink)}
-html[data-theme="alternative"] .technique-picker-options button.is-active{border-color:var(--terracotta);background:var(--terracotta);color:#fff}
+html[data-theme="alternative"] .technique-trigger{border-color:var(--line);background:#202629;color:var(--ink)}
+html[data-theme="alternative"] .technique-trigger:hover{border-color:var(--terracotta)}
+html[data-theme="alternative"] .technique-option{border-color:var(--line);background:#181d1f;color:var(--ink)}
+html[data-theme="alternative"] .technique-option:hover{border-color:#596267;background:#242a2d}
+html[data-theme="alternative"] .technique-option.is-active{border-color:var(--terracotta);background:#34211f}
+html[data-theme="alternative"] .technique-option strong{color:#f4f5f6}
 html[data-theme="alternative"] .sets-editor .set-row{border-bottom-color:var(--line)}
 html[data-theme="alternative"] .technique-lead{border-left-color:var(--sage);background:#1a2320}
 html[data-theme="alternative"] .technique-lead span{color:var(--ink)}

@@ -93,6 +93,11 @@ function escapeHtml(value = '') {
 }
 
 const TECHNIQUE_LABELS = { 'rest-pause': 'Rest-pause', stripping: 'Stripping' };
+const TECHNIQUE_OPTIONS = [
+  { key: 'normal', label: 'Classico', description: 'Serie normali: carico × ripetizioni.' },
+  { key: 'rest-pause', label: 'Rest-pause', description: 'Stesso carico, mini-serie separate da un breve recupero.' },
+  { key: 'stripping', label: 'Stripping', description: 'Cali di carico in successione, senza recupero tra i gradini.' }
+];
 function techniqueLabel(technique) { return TECHNIQUE_LABELS[technique] || ''; }
 function exposureTechnique(exposure) { return exposure?.technique || 'normal'; }
 function commaNumber(value) { return String(value).replace('.', ','); }
@@ -603,14 +608,33 @@ function resetExerciseForm() {
 }
 
 function updateTechniquePicker() {
-  $$('#technique-picker [data-technique]').forEach(button => {
+  const current = TECHNIQUE_OPTIONS.find(option => option.key === state.technique) || TECHNIQUE_OPTIONS[0];
+  const label = $('#technique-current');
+  if (label) label.textContent = current.label;
+  $$('#technique-option-list [data-technique]').forEach(button => {
     const active = button.dataset.technique === state.technique;
     button.classList.toggle('is-active', active);
     button.setAttribute('aria-pressed', String(active));
   });
 }
 
+function renderTechniqueOptions() {
+  $('#technique-option-list').innerHTML = TECHNIQUE_OPTIONS.map(option => `<button type="button" class="technique-option${option.key === state.technique ? ' is-active' : ''}" data-technique="${option.key}" aria-pressed="${option.key === state.technique}"><strong>${escapeHtml(option.label)}</strong><span>${escapeHtml(option.description)}</span></button>`).join('');
+}
+
+function openTechniqueModal() {
+  renderTechniqueOptions();
+  $('#technique-modal').hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+function closeTechniqueModal() {
+  $('#technique-modal').hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
 function selectTechnique(technique) {
+  closeTechniqueModal();
   if (state.technique === technique) return;
   readSetRows();
   state.technique = technique;
@@ -909,8 +933,10 @@ document.addEventListener('click', async event => {
       renderProgressTrack();
       return;
     }
-    const techniqueButton = event.target.closest('#technique-picker [data-technique]');
-    if (techniqueButton) { selectTechnique(techniqueButton.dataset.technique); return; }
+    if (event.target.closest('#open-technique-modal')) { openTechniqueModal(); return; }
+    const techniqueOption = event.target.closest('#technique-option-list [data-technique]');
+    if (techniqueOption) { selectTechnique(techniqueOption.dataset.technique); return; }
+    if (event.target.closest('#close-technique-modal') || event.target.id === 'technique-modal') { closeTechniqueModal(); return; }
     const progressPoint = event.target.closest('[data-progress-index]');
     if (progressPoint) { showProgressPoint(progressPoint); return; }
     const dateButton = event.target.closest('[data-open-date]');
@@ -946,6 +972,7 @@ document.addEventListener('click', async event => {
 });
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
+  if (!$('#technique-modal').hidden) closeTechniqueModal();
   const weightPopover = $('#weight-point-popover'); if (weightPopover) weightPopover.hidden = true;
   const energyPopover = $('#energy-point-popover'); if (energyPopover) energyPopover.hidden = true;
   const progressPopover = $('#progress-point-popover'); if (progressPopover) progressPopover.hidden = true;
