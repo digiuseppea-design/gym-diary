@@ -39,6 +39,7 @@ jobs:
           mkdir _site
           cp index.html .nojekyll _site/
           cp -R app mockup _site/
+          sed -i "s/__BUILD_VERSION__/${GITHUB_SHA::7}/" _site/app/service-worker.js
 
       - name: Prepara i file statici
         uses: actions/upload-pages-artifact@v4

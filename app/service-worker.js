@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gym-diary-shell-v8';
+const CACHE_NAME = 'gym-diary-shell-__BUILD_VERSION__';
 const APP_SHELL = [
   './',
   './index.html',
