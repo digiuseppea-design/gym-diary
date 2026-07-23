@@ -85,6 +85,12 @@ button{font-family:inherit}.primary-button{border:0;cursor:pointer}.primary-butt
 .technique-badge.technique-stripping{background:#f6e7ea;color:#8a3a52}
 .logged-set.logged-set-technique{background:#e6ded0;font-weight:600}
 .logged-set.logged-tonnage{background:#eef2e7;color:#5c6a4a}
+.logged-exercise{position:relative;padding-right:40px}
+.logged-delete{position:absolute;top:20px;right:0;display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;transition:background .16s,color .16s}
+.logged-delete:hover,.logged-delete:focus-visible{background:var(--soft);color:var(--terracotta);outline:none}
+.confirm-modal p{margin:8px 0 24px;color:var(--muted);font-size:14px;line-height:1.5}
+.confirm-modal .danger-button{background:#a5342a;box-shadow:0 8px 20px rgba(165,52,42,.24)}
+.confirm-modal .danger-button:hover{background:#8f2a21}
 .result-rep-filters button.is-technique{border-style:dashed}
 @media(max-width:760px){.sets-editor .set-row{grid-template-columns:38px 1fr 1fr 35px;gap:5px}.sets-editor .set-row.set-row-rp,.sets-editor .set-row.set-header-rp{grid-template-columns:38px 1fr 35px}}
 .tour-finish{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tour-pr,.tour-feeling{padding:16px;border-radius:13px}.tour-pr{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#b7533c,#94412f);color:white}.tour-pr>span{font-size:31px;animation:tour-cup 1.8s ease-in-out infinite}@keyframes tour-cup{50%{transform:rotate(-7deg) scale(1.1)}}.tour-pr small,.tour-pr strong,.tour-pr b{display:block;color:white}.tour-pr b{margin-top:5px;font:600 23px "Newsreader"}.tour-feeling{background:#f2e8dc}.tour-feeling>small,.tour-feeling>strong,.tour-feeling>span{display:block}.tour-feeling>div{display:flex;gap:5px;margin:11px 0}.tour-feeling i{display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;background:white;font-style:normal;font-size:10px}.tour-feeling i.selected{border-color:var(--terracotta);background:var(--terracotta);color:white;transform:scale(1.12)}.tour-feeling>span{margin-top:3px;color:var(--muted);font-size:9px}

@@ -1,4 +1,4 @@
-const { initializeDatabase, createId, ensureExercise, searchExercises, getSessionByDate, completeSession, saveExerciseToSession, getSessionsByMonth, getRecentSessions, getAllSessions, getLastExposure, getExerciseHistory, saveCheckin, getCheckins, saveMaxRecord, getMaxRecords, saveSetting, getSetting, createBackup, restoreBackup } = window.GymDiaryDB;
+const { initializeDatabase, createId, ensureExercise, searchExercises, getSessionByDate, completeSession, saveExerciseToSession, deleteExerciseFromSession, getSessionsByMonth, getRecentSessions, getAllSessions, getLastExposure, getExerciseHistory, saveCheckin, getCheckins, saveMaxRecord, getMaxRecords, saveSetting, getSetting, createBackup, restoreBackup } = window.GymDiaryDB;
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -37,7 +37,8 @@ const state = {
   technique: 'normal',
   restWeight: null,
   setRows: [],
-  searchToken: 0
+  searchToken: 0,
+  pendingDeleteIndex: null
 };
 
 function cachedTheme() {
@@ -888,7 +889,7 @@ async function renderLoggedExercises() {
     return;
   }
   const cards = [];
-  for (const exercise of exercises) {
+  for (const [index, exercise] of exercises.entries()) {
     const technique = exposureTechnique(exercise);
     const history = await getExerciseHistory(exercise.exerciseId, state.selectedDate);
     const previous = history.filter(item => exposureTechnique(item.exposure) === technique).sort((a, b) => b.session.date.localeCompare(a.session.date))[0] || null;
@@ -897,9 +898,42 @@ async function renderLoggedExercises() {
       : compareTechnique(exercise, previous?.exposure || null);
     const image = exercise.imageUrl ? `<img class="logged-thumb" src="${escapeHtml(exercise.imageUrl)}" alt="" loading="lazy">` : '<span class="logged-thumb suggestion-placeholder">—</span>';
     const badge = technique !== 'normal' ? `<span class="technique-badge technique-${technique}">${escapeHtml(techniqueLabel(technique))}</span>` : '';
-    cards.push(`<article class="logged-exercise">${image}<div class="logged-main"><h3>${escapeHtml(exercise.name)}${badge}</h3><div class="logged-sets">${loggedSetsHtml(exercise)}</div>${exercise.note ? `<p class="logged-note">${escapeHtml(exercise.note)}</p>` : ''}<p class="comparison ${comparison.result}">${escapeHtml(comparison.text)}</p></div></article>`);
+    const deleteButton = `<button class="logged-delete" type="button" data-delete-exercise="${index}" aria-label="Elimina ${escapeHtml(exercise.name)} da questa pagina">×</button>`;
+    cards.push(`<article class="logged-exercise">${image}<div class="logged-main"><h3>${escapeHtml(exercise.name)}${badge}</h3><div class="logged-sets">${loggedSetsHtml(exercise)}</div>${exercise.note ? `<p class="logged-note">${escapeHtml(exercise.note)}</p>` : ''}<p class="comparison ${comparison.result}">${escapeHtml(comparison.text)}</p></div>${deleteButton}</article>`);
   }
   container.innerHTML = cards.join('');
+}
+
+function openDeleteConfirm(index) {
+  const exercise = state.session?.exercises?.[index];
+  if (!exercise) return;
+  state.pendingDeleteIndex = index;
+  $('#confirm-delete-copy').textContent = `Vuoi eliminare “${exercise.name}” da questa pagina? L’azione non è reversibile.`;
+  $('#confirm-delete-modal').hidden = false;
+  document.body.classList.add('modal-open');
+  setTimeout(() => $('#confirm-delete-no').focus(), 50);
+}
+
+function closeDeleteConfirm() {
+  state.pendingDeleteIndex = null;
+  $('#confirm-delete-modal').hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
+async function confirmDeleteExercise() {
+  const index = state.pendingDeleteIndex;
+  if (index === null || index === undefined) return;
+  closeDeleteConfirm();
+  state.session = await deleteExerciseFromSession({ date: state.selectedDate, index });
+  await renderLoggedExercises();
+  if (state.session) {
+    updateCompleteButton('giorno');
+  } else {
+    renderDayHeader();
+    resetExerciseForm();
+    $('#giorno').classList.add('title-step');
+  }
+  showToast('Esercizio eliminato');
 }
 
 document.addEventListener('click', async event => {
@@ -960,6 +994,8 @@ document.addEventListener('click', async event => {
     const removeSet = event.target.closest('[data-remove-set]');
     if (removeSet) { readSetRows(); if (state.setRows.length > 1) state.setRows.splice(Number(removeSet.closest('[data-set-index]').dataset.setIndex), 1); else state.setRows[0] = { id: createId(), weight: null, reps: null }; renderSetsEditor(); return; }
     if (event.target.closest('#save-exercise')) { await saveCurrentExercise(); return; }
+    const deleteExercise = event.target.closest('[data-delete-exercise]');
+    if (deleteExercise) { openDeleteConfirm(Number(deleteExercise.dataset.deleteExercise)); return; }
     const periodButton = event.target.closest('[data-period-control] [data-period]');
     if (periodButton) {
       const control = periodButton.closest('[data-period-control]');
@@ -972,6 +1008,7 @@ document.addEventListener('click', async event => {
 });
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
+  if (!$('#confirm-delete-modal').hidden) closeDeleteConfirm();
   if (!$('#technique-modal').hidden) closeTechniqueModal();
   const weightPopover = $('#weight-point-popover'); if (weightPopover) weightPopover.hidden = true;
   const energyPopover = $('#energy-point-popover'); if (energyPopover) energyPopover.hidden = true;
@@ -1060,6 +1097,9 @@ $('#save-session-feeling').addEventListener('click', async () => {
     closeSessionCompleteModal(); showToast('Sessione salvata'); navigateHome();
   } catch (error) { showError(error); }
 });
+$('#confirm-delete-yes').addEventListener('click', () => confirmDeleteExercise().catch(showError));
+$('#confirm-delete-no').addEventListener('click', closeDeleteConfirm);
+$('#confirm-delete-modal').addEventListener('click', event => { if (event.target === event.currentTarget) closeDeleteConfirm(); });
 
 let onboardingStep = 0;
 function showOnboardingStep(step) {

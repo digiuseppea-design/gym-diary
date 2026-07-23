@@ -189,6 +189,25 @@ async function saveExerciseToSession({ date, sessionName, exercise }) {
   return session;
 }
 
+async function deleteExerciseFromSession({ date, index }) {
+  const db = await openDatabase();
+  const transaction = db.transaction('sessions', 'readwrite');
+  const store = transaction.objectStore('sessions');
+  const session = await requestToPromise(store.index('date').get(date));
+  if (!session) return null;
+  if (!Number.isInteger(index) || index < 0 || index >= session.exercises.length) throw new Error('Esercizio non trovato.');
+  session.exercises.splice(index, 1);
+  if (!session.exercises.length) {
+    store.delete(session.id);
+    await transactionDone(transaction);
+    return null;
+  }
+  session.updatedAt = new Date().toISOString();
+  store.put(session);
+  await transactionDone(transaction);
+  return session;
+}
+
 async function getSessionsByMonth(year, monthIndex) {
   const db = await openDatabase();
   const transaction = db.transaction('sessions', 'readonly');
@@ -309,5 +328,5 @@ async function restoreBackup(backup) {
   await transactionDone(transaction);
 }
 
-window.GymDiaryDB = { initializeDatabase, createId, ensureExercise, searchExercises, getSessionByDate, completeSession, saveExerciseToSession, getSessionsByMonth, getRecentSessions, getAllSessions, getLastExposure, getExerciseHistory, saveCheckin, getCheckins, saveMaxRecord, getMaxRecords, saveSetting, getSetting, createBackup, validateBackup, restoreBackup };
+window.GymDiaryDB = { initializeDatabase, createId, ensureExercise, searchExercises, getSessionByDate, completeSession, saveExerciseToSession, deleteExerciseFromSession, getSessionsByMonth, getRecentSessions, getAllSessions, getLastExposure, getExerciseHistory, saveCheckin, getCheckins, saveMaxRecord, getMaxRecords, saveSetting, getSetting, createBackup, validateBackup, restoreBackup };
 })();
