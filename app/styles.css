@@ -137,6 +137,15 @@ button{font-family:inherit}.primary-button{border:0;cursor:pointer}.primary-butt
 .template-row strong{display:block;font:600 15px "Newsreader"}
 .template-row span{display:block;margin-top:3px;color:var(--muted);font-size:11px}
 .template-row .logged-delete{top:50%;right:10px;transform:translateY(-50%)}
+.template-open{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;cursor:pointer;font:inherit}
+.template-open:focus-visible{outline:none}
+.template-open:hover strong,.template-open:focus-visible strong{color:var(--terracotta)}
+.template-list-toggle{display:block;margin:14px auto 0}
+.template-view-list{display:flex;flex-direction:column;gap:8px;margin:18px 0 20px;max-height:360px;overflow:auto;text-align:left}
+.template-view-item{padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.template-view-item-head{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.template-view-item-head strong{font:600 15px "Newsreader"}
+.template-view-reps{display:block;margin-top:5px;color:var(--muted);font-size:12px}
 
 /* Round ripetuti (rest-pause/stripping): pulsante ripeti + raggruppamento schede */
 .save-repeat-round{width:100%;margin-top:10px}

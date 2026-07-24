@@ -40,6 +40,7 @@ const state = {
   searchToken: 0,
   pendingDeleteIndex: null,
   templates: [],
+  templatesExpanded: false,
   guidedQueue: null,
   pendingDeleteTemplateId: null
 };
@@ -510,8 +511,9 @@ async function renderCalendar() {
     if (future) cells.push(`<span class="${classes}" aria-label="${escapeHtml(fullDate.format(date))}, data futura">${date.getDate()}</span>`);
     else {
       const session = sessionsByDate.get(key);
-      const tooltipMeta = session ? `${session.exercises.length} ${session.exercises.length === 1 ? 'esercizio' : 'esercizi'}${session.feeling ? ` · Sensazione ${session.feeling}/5` : ''}` : '';
-      const tooltipData = session ? ` data-tooltip-title="${escapeHtml(session.name)}" data-tooltip-exercises="${escapeHtml(session.exercises.map(exercise => exercise.name).join(' · '))}" data-tooltip-meta="${escapeHtml(tooltipMeta)}"` : '';
+      const groupedCount = session ? computeLoggedGroups(session.exercises).length : 0;
+      const tooltipMeta = session ? `${groupedCount} ${groupedCount === 1 ? 'esercizio' : 'esercizi'}${session.feeling ? ` · Sensazione ${session.feeling}/5` : ''}` : '';
+      const tooltipData = session ? ` data-tooltip-title="${escapeHtml(session.name)}" data-tooltip-exercises="${escapeHtml(loggedGroupNames(session.exercises).join(' · '))}" data-tooltip-meta="${escapeHtml(tooltipMeta)}"` : '';
       const feeling = session?.feeling ? `<span class="calendar-feeling" aria-hidden="true">${session.feeling}/5</span>` : '';
       cells.push(`<button class="${classes}" type="button" data-open-date="${key}"${tooltipData} aria-label="${escapeHtml(fullDate.format(date))}${hasSession ? `, ${escapeHtml(session.name)}${session.feeling ? `, sensazione ${session.feeling} su 5` : ''}` : ', nessun allenamento'}"><span class="calendar-day-number">${date.getDate()}</span>${feeling}</button>`);
     }
@@ -549,7 +551,7 @@ async function renderRecentSessions() {
 function sessionRowHtml(session) {
   const notes = session.exercises.map(exercise => exercise.note).filter(Boolean).join(' · ');
   const notePreview = notes.length > 30 ? `${notes.slice(0, 30)}…` : notes;
-  return `<article class="session-card" tabindex="0" role="link" data-open-date="${session.date}"><div class="date-tile"><span>${compactDate.format(dateFromKey(session.date)).replace('.', '')}</span></div><div class="session-main"><h3>${escapeHtml(session.name)}</h3><p>${session.exercises.map(exercise => escapeHtml(exercise.name)).join(' · ')}</p>${notePreview ? `<span class="session-notes">“${escapeHtml(notePreview)}”</span>` : ''}</div><span class="session-chevron" aria-hidden="true">›</span></article>`;
+  return `<article class="session-card" tabindex="0" role="link" data-open-date="${session.date}"><div class="date-tile"><span>${compactDate.format(dateFromKey(session.date)).replace('.', '')}</span></div><div class="session-main"><h3>${escapeHtml(session.name)}</h3><p>${loggedGroupNames(session.exercises).map(escapeHtml).join(' · ')}</p>${notePreview ? `<span class="session-notes">“${escapeHtml(notePreview)}”</span>` : ''}</div><span class="session-chevron" aria-hidden="true">›</span></article>`;
 }
 
 async function openDay(date) {
@@ -599,7 +601,7 @@ function handleUseTemplateClick() {
 }
 
 function openTemplatePicker() {
-  $('#template-picker-list').innerHTML = state.templates.map(template => `<button type="button" class="template-picker-item" data-pick-template="${template.id}"><strong>${escapeHtml(template.name)}</strong><span>${template.exercises.length} ${template.exercises.length === 1 ? 'esercizio' : 'esercizi'}</span></button>`).join('');
+  $('#template-picker-list').innerHTML = state.templates.map(template => { const count = templateExerciseGroups(template.exercises).length; return `<button type="button" class="template-picker-item" data-pick-template="${template.id}"><strong>${escapeHtml(template.name)}</strong><span>${count} ${count === 1 ? 'esercizio' : 'esercizi'}</span></button>`; }).join('');
   $('#template-picker-modal').hidden = false;
   document.body.classList.add('modal-open');
 }
@@ -617,13 +619,13 @@ function startGuidedSession(templateId) {
     templateId: template.id,
     name: template.name,
     index: 0,
-    items: template.exercises.map(exercise => ({
-      exerciseId: exercise.exerciseId,
-      name: exercise.name,
-      imageUrl: exercise.imageUrl,
-      technique: exercise.technique,
-      sets: exercise.sets.map(set => ({ reps: set.reps })),
-      savedSnapshot: null
+    items: templateExerciseGroups(template.exercises).map(group => ({
+      exerciseId: group.exerciseId,
+      name: group.name,
+      imageUrl: group.imageUrl,
+      technique: group.technique === 'normal' ? null : group.technique,
+      sets: group.sets.map(set => ({ reps: set.reps })),
+      savedEntries: []
     }))
   };
   $('#session-name').value = template.name;
@@ -638,7 +640,7 @@ async function loadGuidedStep() {
   if (!queue) return;
   if (queue.index >= queue.items.length) { renderGuidedEnd(); return; }
   const item = queue.items[queue.index];
-  if (item.savedSnapshot) renderGuidedRecap(item);
+  if (item.savedEntries.length) renderGuidedRecap(item);
   else await applyGuidedExercise(item);
   renderGuidedChrome();
 }
@@ -667,10 +669,14 @@ async function applyGuidedExercise(item) {
 function renderGuidedRecap(item) {
   $('#exercise-editable-fields').hidden = true;
   $('#guided-end').hidden = true;
-  const exposureLike = { sets: item.savedSnapshot.sets, technique: item.savedSnapshot.technique };
-  const technique = exposureTechnique(exposureLike);
+  const entries = item.savedEntries || [];
+  const technique = item.technique || 'normal';
   const badge = technique !== 'normal' ? `<span class="technique-badge technique-${technique}">${escapeHtml(techniqueLabel(technique))}</span>` : '';
-  $('#guided-recap').innerHTML = `<div class="guided-recap-head"><strong>${escapeHtml(item.name)}</strong>${badge}</div><div class="logged-sets">${loggedSetsHtml(exposureLike)}</div><p class="guided-recap-hint">Già salvata in questa sessione. Per modificarla, usa la × nell’elenco qui sotto.</p>`;
+  const roundsCount = entries.length > 1 ? `<span class="logged-round-count">${entries.length} round</span>` : '';
+  const body = entries.length > 1
+    ? entries.map((entry, index) => `<div class="logged-round"><span class="logged-round-label">Round ${index + 1}</span><div class="logged-sets">${loggedSetsHtml(entry)}</div></div>`).join('')
+    : `<div class="logged-sets">${loggedSetsHtml(entries[0] || item)}</div>`;
+  $('#guided-recap').innerHTML = `<div class="guided-recap-head"><strong>${escapeHtml(item.name)}</strong>${badge}${roundsCount}</div>${body}<p class="guided-recap-hint">Già salvata in questa sessione. Per modificarla, usa la × nell’elenco qui sotto.</p>`;
   $('#guided-recap').hidden = false;
 }
 
@@ -678,7 +684,7 @@ function renderGuidedEnd() {
   const queue = state.guidedQueue;
   $('#exercise-editable-fields').hidden = true;
   $('#guided-recap').hidden = true;
-  const done = queue.items.filter(item => item.savedSnapshot).length;
+  const done = queue.items.filter(item => item.savedEntries.length).length;
   const skipped = queue.items.length - done;
   $('#guided-end-summary').textContent = skipped > 0
     ? `${done} di ${queue.items.length} esercizi salvati · ${skipped} ${skipped === 1 ? 'saltato' : 'saltati'}.`
@@ -695,7 +701,7 @@ function renderGuidedChrome() {
   const atEnd = queue.index >= queue.items.length;
   $('#guided-template-name').textContent = queue.name;
   $('#guided-step-label').textContent = atEnd ? 'Riepilogo' : `Esercizio ${queue.index + 1} di ${queue.items.length}`;
-  $('#guided-dots').innerHTML = queue.items.map((item, index) => `<i class="${item.savedSnapshot ? 'is-done' : ''}${!atEnd && index === queue.index ? ' is-current' : ''}"></i>`).join('');
+  $('#guided-dots').innerHTML = queue.items.map((item, index) => `<i class="${item.savedEntries.length ? 'is-done' : ''}${!atEnd && index === queue.index ? ' is-current' : ''}"></i>`).join('');
   $('#guided-prev').disabled = queue.index <= 0;
   $('#guided-next').disabled = atEnd;
 }
@@ -712,20 +718,17 @@ function syncGuidedAfterSave() {
   const savedEntry = state.session?.exercises?.at(-1);
   if (!savedEntry) return;
   const currentItem = queue.index < queue.items.length ? queue.items[queue.index] : null;
-  if (currentItem && !currentItem.savedSnapshot && savedEntry.exerciseId === currentItem.exerciseId) {
-    currentItem.savedSnapshot = { technique: savedEntry.technique, sets: savedEntry.sets };
+  if (currentItem && savedEntry.exerciseId === currentItem.exerciseId && exposureTechnique(savedEntry) === (currentItem.technique || 'normal') && !currentItem.savedEntries.includes(savedEntry)) {
+    currentItem.savedEntries.push(savedEntry);
   }
 }
 
 async function guidedAdvance(direction) {
   const queue = state.guidedQueue;
   if (!queue) return;
-  if (queue.index < queue.items.length) {
-    const item = queue.items[queue.index];
-    if (!item.savedSnapshot && guidedHasData()) {
-      await saveCurrentExercise();
-      syncGuidedAfterSave();
-    }
+  if (queue.index < queue.items.length && !$('#exercise-editable-fields').hidden && guidedHasData()) {
+    await saveCurrentExercise();
+    syncGuidedAfterSave();
   }
   queue.index = Math.max(0, Math.min(queue.items.length, queue.index + direction));
   await loadGuidedStep();
@@ -764,6 +767,19 @@ async function confirmSaveTemplate() {
   showToast('Modello salvato');
 }
 
+function templateExerciseGroups(exercises) {
+  const groups = [];
+  const byKey = new Map();
+  for (const exercise of exercises || []) {
+    const technique = exercise.technique || 'normal';
+    if (technique === 'normal') { groups.push({ exerciseId: exercise.exerciseId, name: exercise.name, imageUrl: exercise.imageUrl, technique, rounds: 1, sets: exercise.sets || [] }); continue; }
+    const key = `${exercise.exerciseId}::${technique}`;
+    if (byKey.has(key)) byKey.get(key).rounds += 1;
+    else { const group = { exerciseId: exercise.exerciseId, name: exercise.name, imageUrl: exercise.imageUrl, technique, rounds: 1, sets: exercise.sets || [] }; byKey.set(key, group); groups.push(group); }
+  }
+  return groups;
+}
+
 async function renderTemplatesList() {
   state.templates = await getTemplates();
   const list = $('#profile-templates-list');
@@ -771,7 +787,35 @@ async function renderTemplatesList() {
     list.innerHTML = '<p class="empty-list">Non hai ancora salvato un allenamento come modello.</p>';
     return;
   }
-  list.innerHTML = state.templates.map(template => `<article class="template-row"><div><strong>${escapeHtml(template.name)}</strong><span>${template.exercises.length} ${template.exercises.length === 1 ? 'esercizio' : 'esercizi'} · ${escapeHtml(template.exercises.map(exercise => exercise.name).join(' · '))}</span></div><button type="button" class="logged-delete" data-delete-template="${template.id}" aria-label="Elimina il modello ${escapeHtml(template.name)}">×</button></article>`).join('');
+  const total = state.templates.length;
+  const expanded = state.templatesExpanded || total <= 4;
+  const visible = expanded ? state.templates : state.templates.slice(0, 4);
+  const rows = visible.map(template => {
+    const count = templateExerciseGroups(template.exercises).length;
+    return `<article class="template-row"><button type="button" class="template-open" data-open-template="${template.id}"><strong>${escapeHtml(template.name)}</strong><span>${count} ${count === 1 ? 'esercizio' : 'esercizi'}</span></button><button type="button" class="logged-delete" data-delete-template="${template.id}" aria-label="Elimina il modello ${escapeHtml(template.name)}">×</button></article>`;
+  }).join('');
+  const more = total > 4 ? `<button class="text-button template-list-toggle" id="toggle-template-list" type="button">${expanded ? 'Mostra meno' : `Vedi altro (${total - 4})`}</button>` : '';
+  list.innerHTML = rows + more;
+}
+
+function openTemplateView(id) {
+  const template = state.templates.find(item => item.id === id);
+  if (!template) return;
+  const groups = templateExerciseGroups(template.exercises);
+  $('#template-view-title').textContent = template.name;
+  $('#template-view-list').innerHTML = groups.map(group => {
+    const badge = group.technique !== 'normal' ? `<span class="technique-badge technique-${group.technique}">${escapeHtml(techniqueLabel(group.technique))}</span>` : '';
+    const rounds = group.rounds > 1 ? `<span class="logged-round-count">${group.rounds} round</span>` : '';
+    const reps = group.sets.map(set => set.reps ?? '—').join(' · ');
+    return `<article class="template-view-item"><div class="template-view-item-head"><strong>${escapeHtml(group.name)}</strong>${badge}${rounds}</div>${reps ? `<span class="template-view-reps">${escapeHtml(reps)} rip.</span>` : ''}</article>`;
+  }).join('');
+  $('#template-view-modal').hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+function closeTemplateView() {
+  $('#template-view-modal').hidden = true;
+  document.body.classList.remove('modal-open');
 }
 
 function openDeleteTemplateConfirm(id) {
@@ -908,7 +952,7 @@ function renderSetsEditor() {
   if (state.technique === 'normal') $$('#set-rows [data-set-index]').forEach(updateRowRecord);
   else updateTonnagePreview();
   const repeatButton = $('#save-repeat-round');
-  if (repeatButton) repeatButton.hidden = state.technique === 'normal' || Boolean(state.guidedQueue);
+  if (repeatButton) repeatButton.hidden = state.technique === 'normal';
 }
 
 function techniqueBestTonnage() {
@@ -1069,7 +1113,6 @@ async function saveCurrentExercise() {
 }
 
 async function saveAndRepeatRound() {
-  if (state.guidedQueue) return;
   if (!state.selectedExercise || state.technique === 'normal') return;
   readSetRows();
   const exerciseId = state.selectedExercise.id;
@@ -1162,6 +1205,9 @@ function computeLoggedGroups(exercises) {
   return groups;
 }
 
+function loggedGroupName(group) { return group.type === 'single' ? group.exercise.name : group.entries[0].exercise.name; }
+function loggedGroupNames(exercises) { return computeLoggedGroups(exercises).map(loggedGroupName); }
+
 async function renderSingleLoggedCard(index, exercise) {
   const technique = exposureTechnique(exercise);
   const history = await getExerciseHistory(exercise.exerciseId, state.selectedDate);
@@ -1191,7 +1237,8 @@ async function renderGroupedLoggedCard(group) {
 async function renderLoggedExercises() {
   const container = $('#logged-exercises');
   const exercises = state.session?.exercises || [];
-  $('#logged-count').textContent = `${exercises.length} ${exercises.length === 1 ? 'esercizio' : 'esercizi'}`;
+  const exerciseCount = computeLoggedGroups(exercises).length;
+  $('#logged-count').textContent = `${exerciseCount} ${exerciseCount === 1 ? 'esercizio' : 'esercizi'}`;
   $('#save-as-template').hidden = !exercises.length;
   if (!exercises.length) {
     container.innerHTML = '<p class="empty-list">Ancora nessun esercizio in questa pagina.</p>';
@@ -1304,7 +1351,7 @@ document.addEventListener('click', async event => {
       if (state.guidedQueue) { syncGuidedAfterSave(); await loadGuidedStep(); }
       return;
     }
-    if (event.target.closest('#save-repeat-round')) { await saveAndRepeatRound(); return; }
+    if (event.target.closest('#save-repeat-round')) { await saveAndRepeatRound(); if (state.guidedQueue) { syncGuidedAfterSave(); renderGuidedChrome(); } return; }
     const deleteExercise = event.target.closest('[data-delete-exercise]');
     if (deleteExercise) { openDeleteConfirm(Number(deleteExercise.dataset.deleteExercise)); return; }
     if (event.target.closest('#start-blank-day')) { startBlankDay(); return; }
@@ -1328,6 +1375,10 @@ document.addEventListener('click', async event => {
     if (event.target.closest('#save-template-cancel') || event.target.id === 'save-template-modal') { closeSaveTemplateModal(); return; }
     const deleteTemplateButton = event.target.closest('[data-delete-template]');
     if (deleteTemplateButton) { openDeleteTemplateConfirm(deleteTemplateButton.dataset.deleteTemplate); return; }
+    const openTemplateButton = event.target.closest('[data-open-template]');
+    if (openTemplateButton) { openTemplateView(openTemplateButton.dataset.openTemplate); return; }
+    if (event.target.closest('#close-template-view') || event.target.id === 'template-view-modal') { closeTemplateView(); return; }
+    if (event.target.closest('#toggle-template-list')) { state.templatesExpanded = !state.templatesExpanded; await renderTemplatesList(); return; }
     if (event.target.closest('#confirm-delete-template-yes')) { await confirmDeleteTemplate(); return; }
     if (event.target.closest('#confirm-delete-template-no') || event.target.id === 'confirm-delete-template-modal') { closeDeleteTemplateConfirm(); return; }
     const periodButton = event.target.closest('[data-period-control] [data-period]');
@@ -1348,6 +1399,7 @@ document.addEventListener('keydown', event => {
   if (!$('#template-picker-modal').hidden) closeTemplatePicker();
   if (!$('#save-template-modal').hidden) closeSaveTemplateModal();
   if (!$('#confirm-delete-template-modal').hidden) closeDeleteTemplateConfirm();
+  if (!$('#template-view-modal').hidden) closeTemplateView();
   if (!$('#weight-modal').hidden) closeWeightModal();
   if (!$('#max-modal').hidden) closeMaxModal();
   const weightPopover = $('#weight-point-popover'); if (weightPopover) weightPopover.hidden = true;
