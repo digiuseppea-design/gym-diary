@@ -191,6 +191,10 @@ html[data-theme="alternative"] .technique-option strong{color:#f4f5f6}
 html[data-theme="alternative"] .sets-editor .set-row{border-bottom-color:var(--line)}
 html[data-theme="alternative"] .technique-lead{border-left-color:var(--sage);background:#1a2320}
 html[data-theme="alternative"] .technique-lead span{color:var(--ink)}
+html[data-theme="alternative"] .guided-recap{border-left-color:var(--sage);background:#1a2320}
+html[data-theme="alternative"] .template-picker-item{border-color:var(--line)}
+html[data-theme="alternative"] .template-picker-item:hover,html[data-theme="alternative"] .template-picker-item:focus-visible{background:#202629}
+html[data-theme="alternative"] .logged-round{background:#1b1f21;border-color:var(--line)}
 html[data-theme="alternative"] .tonnage-preview{border-color:var(--line);background:#1b1f21}
 html[data-theme="alternative"] .tonnage-preview strong{color:#f4f5f6;font-family:"Oswald",sans-serif;font-variant-numeric:tabular-nums}
 html[data-theme="alternative"] .tonnage-preview small{color:#e4b765}

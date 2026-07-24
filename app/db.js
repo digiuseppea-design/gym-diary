@@ -1,9 +1,9 @@
 (function () {
 const DB_NAME = 'gym-diary';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 const BACKUP_FORMAT = 'gym-diary-backup';
 const BACKUP_SCHEMA_VERSION = 1;
-const BACKUP_STORES = ['exercises', 'sessions', 'checkins', 'maxRecords', 'settings'];
+const BACKUP_STORES = ['exercises', 'sessions', 'checkins', 'maxRecords', 'settings', 'templates'];
 let databasePromise = null;
 
 function createId() {
@@ -63,6 +63,7 @@ function openDatabase() {
         maxRecords.createIndex('exerciseName', 'exerciseName', { unique: false });
       }
       if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
+      if (!db.objectStoreNames.contains('templates')) db.createObjectStore('templates', { keyPath: 'id' });
     };
   });
   return databasePromise;
@@ -208,6 +209,33 @@ async function deleteExerciseFromSession({ date, index }) {
   return session;
 }
 
+async function saveTemplate({ name, exercises }) {
+  const cleanName = name.trim();
+  if (!cleanName) throw new Error('Dai un nome al modello.');
+  if (!exercises?.length) throw new Error('Il modello deve avere almeno un esercizio.');
+  const db = await openDatabase();
+  const transaction = db.transaction('templates', 'readwrite');
+  const now = new Date().toISOString();
+  const template = { id: createId(), name: cleanName, exercises, createdAt: now, updatedAt: now };
+  transaction.objectStore('templates').put(template);
+  await transactionDone(transaction);
+  return template;
+}
+
+async function getTemplates() {
+  const db = await openDatabase();
+  const transaction = db.transaction('templates', 'readonly');
+  const templates = await requestToPromise(transaction.objectStore('templates').getAll());
+  return templates.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+async function deleteTemplate(id) {
+  const db = await openDatabase();
+  const transaction = db.transaction('templates', 'readwrite');
+  transaction.objectStore('templates').delete(id);
+  await transactionDone(transaction);
+}
+
 async function getSessionsByMonth(year, monthIndex) {
   const db = await openDatabase();
   const transaction = db.transaction('sessions', 'readonly');
@@ -328,5 +356,5 @@ async function restoreBackup(backup) {
   await transactionDone(transaction);
 }
 
-window.GymDiaryDB = { initializeDatabase, createId, ensureExercise, searchExercises, getSessionByDate, completeSession, saveExerciseToSession, deleteExerciseFromSession, getSessionsByMonth, getRecentSessions, getAllSessions, getLastExposure, getExerciseHistory, saveCheckin, getCheckins, saveMaxRecord, getMaxRecords, saveSetting, getSetting, createBackup, validateBackup, restoreBackup };
+window.GymDiaryDB = { initializeDatabase, createId, ensureExercise, searchExercises, getSessionByDate, completeSession, saveExerciseToSession, deleteExerciseFromSession, saveTemplate, getTemplates, deleteTemplate, getSessionsByMonth, getRecentSessions, getAllSessions, getLastExposure, getExerciseHistory, saveCheckin, getCheckins, saveMaxRecord, getMaxRecords, saveSetting, getSetting, createBackup, validateBackup, restoreBackup };
 })();
